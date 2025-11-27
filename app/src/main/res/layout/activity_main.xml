@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="#E0FFF5">
+
+        <!-- CABECERA: Título + Subtítulo + Salir -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTitulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fontela Cristales"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSubtitulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gestión de Reposiciones"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSalir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Salir" />
+        </LinearLayout>
+
+        <!-- Fila de botones: Nuevo pedido / Ver registros -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <Button
+                android:id="@+id/btnNuevoPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nuevo pedido" />
+
+            <Button
+                android:id="@+id/btnVerRegistros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ver registros"
+                android:layout_marginStart="16dp" />
+        </LinearLayout>
+
+        <!-- DATOS GENERALES -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Datos generales"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:paddingTop="8dp" />
+
+        <!-- Fecha -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha" />
+
+        <EditText
+            android:id="@+id/etFecha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="dd/MM/yyyy"
+            android:focusable="false"
+            android:inputType="date" />
+
+        <!-- Número de pedido solo numérico -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N° de pedido" />
+
+        <EditText
+            android:id="@+id/etNumeroPedido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Número de pedido"
+            android:inputType="number" />
+
+        <!-- Responsable -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Responsable"
+            android:paddingTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spResponsable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Sector -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sector"
+            android:paddingTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spSector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Material -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Material"
+            android:paddingTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- PROCESOS POR CARA -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Procesos requeridos por cara"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:paddingTop="16dp" />
+
+        <!-- Cara 1 + Pulido/Templado -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cara 1" />
+
+            <CheckBox
+                android:id="@+id/cbPulido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pulido" />
+
+            <CheckBox
+                android:id="@+id/cbTemplado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Templado" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etCara1"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <!-- Cara 2 + Pulido/Templado -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cara 2" />
+
+            <CheckBox
+                android:id="@+id/cbPulidoCara2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pulido" />
+
+            <CheckBox
+                android:id="@+id/cbTempladoCara2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Templado" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etCara2"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <!-- Motivo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Motivo"
+            android:paddingTop="16dp" />
+
+        <EditText
+            android:id="@+id/etMotivo"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <!-- Otros procesos -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Otros procesos"
+            android:textStyle="bold"
+            android:paddingTop="16dp" />
+
+        <CheckBox
+            android:id="@+id/cbDvh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ya es DVH" />
+
+        <!-- Origen del corte -->
+        <TextView
+            android:text="Origen del corte"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:id="@+id/rgOrigenCorte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rbFloat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cortar de Float" />
+
+            <RadioButton
+                android:id="@+id/rbLaminado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Cortar de Laminado" />
+        </RadioGroup>
+
+        <!-- Botones Guardar / Enviar -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="24dp">
+
+            <Button
+                android:id="@+id/btnGuardar"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Guardar" />
+
+            <Button
+                android:id="@+id/btnEnviar"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Enviar" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
