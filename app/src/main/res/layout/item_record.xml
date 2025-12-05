@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:dividerPadding="4dp">
+
+        <TextView
+            android:id="@+id/tvPedido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:text="Pedido" />
+
+        <TextView
+            android:id="@+id/tvMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:textColor="#0F3F2C"
+            android:text="Material" />
+
+        <TextView
+            android:id="@+id/tvProcesos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Procesos" />
+
+        <TextView
+            android:id="@+id/tvResponsable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Responsable" />
+
+        <TextView
+            android:id="@+id/tvMotivo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Motivo"
+            android:textColor="#444" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

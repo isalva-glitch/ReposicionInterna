@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">ReposicionInterna</string>
+    <string name="preview_hint">La vista previa aparecerá al completar los datos.</string>
+    <string name="records_empty">Aún no hay registros guardados.</string>
+    <string name="records_total">Total de registros: %1$d</string>
+    <string name="preview_missing_path">No se encontró la ruta del PDF.</string>
+    <string name="preview_file_missing">El archivo PDF ya no está disponible.</string>
+    <string name="preview_empty">El PDF no tiene páginas para mostrar.</string>
+    <string name="preview_error">No se pudo mostrar la vista previa.</string>
+    <string name="preview_no_viewer">No hay visor de PDF disponible.</string>
+    <string name="email_subject_pdf">Reposición interna de cristales</string>
+    <string name="email_body_pdf">Se adjunta reposición interna generada desde la tablet.</string>
+    <string name="email_chooser_pdf">Enviar PDF…</string>
 </resources>

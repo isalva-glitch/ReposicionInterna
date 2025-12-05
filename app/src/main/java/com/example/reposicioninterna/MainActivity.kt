@@ -34,11 +34,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rgOrigenCorte: RadioGroup
     private lateinit var rbFloat: RadioButton
     private lateinit var rbLaminado: RadioButton
-    private lateinit var btnGuardar: Button
-    private lateinit var btnEnviar: Button
+    private lateinit var btnGuardarEnviar: Button
+    private lateinit var btnPreviewPdf: Button
     private lateinit var btnNuevoPedido: Button
     private lateinit var btnVerRegistros: Button
     private lateinit var btnSalir: Button
+    private lateinit var tvResumen: TextView
 
     private lateinit var dbHelper: ReposicionDbHelper
 
@@ -88,22 +89,24 @@ class MainActivity : AppCompatActivity() {
         rgOrigenCorte = findViewById(R.id.rgOrigenCorte)
         rbFloat = findViewById(R.id.rbFloat)
         rbLaminado = findViewById(R.id.rbLaminado)
-        btnGuardar = findViewById(R.id.btnGuardar)
-        btnEnviar = findViewById(R.id.btnEnviar)
+        btnGuardarEnviar = findViewById(R.id.btnGuardarEnviar)
+        btnPreviewPdf = findViewById(R.id.btnPreviewPdf)
         btnNuevoPedido = findViewById(R.id.btnNuevoPedido)
         btnVerRegistros = findViewById(R.id.btnVerRegistros)
         btnSalir = findViewById(R.id.btnSalir)
+        tvResumen = findViewById(R.id.tvResumen)
 
         initFecha()
         initDatePicker()
+        tvResumen.text = getString(R.string.preview_hint)
 
         // Cargar maestros desde CSV (si está ok)
         loadMastersFromCsv()
         setupSpinners()
 
         // BOTONES
-        btnGuardar.setOnClickListener { onGuardar() }
-        btnEnviar.setOnClickListener { onEnviar() }
+        btnPreviewPdf.setOnClickListener { onPreviewPdf() }
+        btnGuardarEnviar.setOnClickListener { onGuardarYEnviar() }
 
         btnNuevoPedido.setOnClickListener {
             clearForm()
@@ -237,19 +240,17 @@ class MainActivity : AppCompatActivity() {
 
     // ---------- BOTONES PRINCIPALES ----------
 
-    private fun onGuardar() {
+    private fun onGuardarYEnviar() {
         val record = gatherRecord() ?: return
 
-        val id = dbHelper.insertRecord(record)
-        if (id > 0) {
-            Toast.makeText(this, "Guardado localmente (ID $id)", Toast.LENGTH_SHORT).show()
+        val savedId = dbHelper.insertRecord(record)
+        if (savedId > 0) {
+            Toast.makeText(this, "Registro #$savedId guardado", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
+            return
         }
-    }
 
-    private fun onEnviar() {
-        val record = gatherRecord() ?: return
 
         val pdfFile = generatePdfForRecord(record)
         if (pdfFile != null) {
@@ -259,11 +260,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun onPreviewPdf() {
+        val record = gatherRecord() ?: return
+        val pdfFile = generatePdfForRecord(record)
+        if (pdfFile != null) {
+            openPdfPreview(pdfFile)
+        } else {
+            Toast.makeText(this, "No se pudo generar la vista previa", Toast.LENGTH_SHORT).show()
+        }
+    }
     // ---------- ARMADO DEL REGISTRO ----------
 
     private fun gatherRecord(): ReposicionRecord? {
         val fecha = etFecha.text.toString().trim()
         val numeroPedido = etNumeroPedido.text.toString().trim()
+
+        if (fecha.isEmpty() || !isValidDate(fecha)) {
+            etFecha.error = "Fecha inválida"
+            Toast.makeText(this, "Indicá la fecha con formato dd/MM/yyyy", Toast.LENGTH_SHORT)
+                .show()
+            return null
+        }
+
 
         if (numeroPedido.isEmpty()) {
             etNumeroPedido.error = "Obligatorio"
@@ -278,6 +296,29 @@ class MainActivity : AppCompatActivity() {
         val cara1 = etCara1.text.toString().trim()
         val cara2 = etCara2.text.toString().trim()
         val motivo = etMotivo.text.toString().trim()
+        if (responsable.isNullOrBlank()) {
+            Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        if (sector.isNullOrBlank()) {
+            Toast.makeText(this, "Elegí el sector", Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        if (material.isNullOrBlank()) {
+            Toast.makeText(this, "Elegí el material", Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        if (cara1.isEmpty() && cara2.isEmpty() && motivo.isEmpty()) {
+            etCara1.error = "Completar al menos una cara"
+            etCara2.error = "Completar al menos una cara"
+            etMotivo.error = "Indicar motivo"
+            Toast.makeText(this, "Detallá la reposición o el motivo", Toast.LENGTH_SHORT)
+                .show()
+            return null
+        }
 
         val pulidoCara1 = cbPulido.isChecked
         val templadoCara1 = cbTemplado.isChecked
@@ -291,7 +332,7 @@ class MainActivity : AppCompatActivity() {
             else -> "Cortar de Laminado"
         }
 
-        return ReposicionRecord(
+        val record = ReposicionRecord(
             fecha = fecha,
             numeroPedido = numeroPedido,
             responsable = responsable,
@@ -307,6 +348,9 @@ class MainActivity : AppCompatActivity() {
             yaEsDvh = yaEsDvh,
             origenCorte = origenCorte
         )
+
+        updateResumen(record)
+        return record
     }
 
     // ---------- LIMPIAR FORMULARIO (NUEVO PEDIDO) ----------
@@ -335,6 +379,9 @@ class MainActivity : AppCompatActivity() {
         cbDvh.isChecked = false
 
         rbLaminado.isChecked = true
+
+
+        tvResumen.text = getString(R.string.preview_hint)
     }
 
     // ---------- GENERACIÓN DE PDF ----------
@@ -392,7 +439,12 @@ class MainActivity : AppCompatActivity() {
             canvas.drawText("  ${record.motivo ?: ""}", 40f, y, paint); y += 24f
 
             // Otros
-            canvas.drawText("Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}", 40f, y, paint); y += 18f
+            canvas.drawText(
+                "Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}",
+                40f,
+                y,
+                paint
+            ); y += 18f
             canvas.drawText("Origen corte: ${record.origenCorte}", 40f, y, paint); y += 18f
 
             pdfDocument.finishPage(page)
@@ -430,5 +482,46 @@ class MainActivity : AppCompatActivity() {
         }
 
         startActivity(Intent.createChooser(emailIntent, "Enviar email..."))
+    }
+
+
+    private fun openPdfPreview(file: File) {
+        val intent = Intent(this, PdfPreviewActivity::class.java).apply {
+            putExtra(PdfPreviewActivity.EXTRA_PDF_PATH, file.absolutePath)
+        }
+
+        startActivity(intent)
+    }
+
+    private fun isValidDate(value: String): Boolean {
+        return try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            sdf.isLenient = false
+            sdf.parse(value) != null
+        } catch (ex: Exception) {
+            false
+        }
+    }
+
+    private fun updateResumen(record: ReposicionRecord) {
+        val procCara1 = listOfNotNull(
+            if (record.pulidoCara1) "Pulido" else null,
+            if (record.templadoCara1) "Templado" else null
+        ).joinToString(" · ").ifEmpty { "Sin procesos" }
+
+        val procCara2 = listOfNotNull(
+            if (record.pulidoCara2) "Pulido" else null,
+            if (record.templadoCara2) "Templado" else null
+        ).joinToString(" · ").ifEmpty { "Sin procesos" }
+
+        val resumen = """
+                ${record.fecha} · Pedido ${record.numeroPedido}
+                ${record.material ?: ""} (${record.origenCorte})
+                Cara 1: $procCara1 | Cara 2: $procCara2
+                ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
+                Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}
+            """.trimIndent()
+
+        tvResumen.text = resumen
     }
 }
