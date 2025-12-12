@@ -7,8 +7,8 @@ data class ReposicionRecord(
     val responsable: String?,
     val sector: String?,
     val material: String?,
-    val cara1: String?,
-    val cara2: String?,
+    val alto: String?,
+    val ancho: String?,
     val motivo: String?,
 
     val pulidoCara1: Boolean,

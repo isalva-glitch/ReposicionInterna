@@ -26,14 +26,20 @@ class RecordsActivity : AppCompatActivity() {
         tvEmpty = findViewById(R.id.tvEmpty)
         tvTotal = findViewById(R.id.tvTotal)
 
-        val registros = dbHelper.getAllRecords()
+        val recordLimit = 20
+        val registros = dbHelper.getRecentRecords(recordLimit)
         val adapter = RecordsAdapter(this, registros)
 
 
         lvRegistros.adapter = adapter
         lvRegistros.emptyView = tvEmpty
         tvEmpty.text = getString(R.string.records_empty)
-        tvTotal.text = getString(R.string.records_total, registros.size)
+        tvTotal.text = when (registros.size) {
+            0 -> getString(R.string.records_empty)
+            1 -> getString(R.string.records_recent_single)
+            recordLimit -> getString(R.string.records_recent_limit, recordLimit)
+            else -> getString(R.string.records_recent, registros.size)
+        }
 
         btnVolver.setOnClickListener {
             finish()  // vuelve a MainActivity

@@ -18,8 +18,8 @@ class ReposicionDbHelper(context: Context) :
                 $COL_RESPONSABLE TEXT,
                 $COL_SECTOR TEXT,
                 $COL_MATERIAL TEXT,
-                $COL_CARA1 TEXT,
-                $COL_CARA2 TEXT,
+                ${'$'}COL_ALTO TEXT,
+                ${'$'}COL_ANCHO TEXT,
                 $COL_MOTIVO TEXT,
                 $COL_PULIDO_C1 INTEGER,
                 $COL_TEMPLADO_C1 INTEGER,
@@ -47,8 +47,8 @@ class ReposicionDbHelper(context: Context) :
             put(COL_RESPONSABLE, record.responsable)
             put(COL_SECTOR, record.sector)
             put(COL_MATERIAL, record.material)
-            put(COL_CARA1, record.cara1)
-            put(COL_CARA2, record.cara2)
+            put(COL_ALTO, record.alto)
+            put(COL_ANCHO, record.ancho)
             put(COL_MOTIVO, record.motivo)
 
             put(COL_PULIDO_C1, if (record.pulidoCara1) 1 else 0)
@@ -64,6 +64,14 @@ class ReposicionDbHelper(context: Context) :
     }
 
     fun getAllRecords(): List<ReposicionRecord> {
+        return getRecordsInternal(null)
+    }
+
+    fun getRecentRecords(limit: Int): List<ReposicionRecord> {
+        return getRecordsInternal(limit)
+    }
+
+    private fun getRecordsInternal(limit: Int?): List<ReposicionRecord> {
         val result = mutableListOf<ReposicionRecord>()
         val db = readableDatabase
 
@@ -74,7 +82,8 @@ class ReposicionDbHelper(context: Context) :
             null,
             null,
             null,
-            "$COL_TIMESTAMP DESC"
+            "$COL_TIMESTAMP DESC",
+            limit?.toString()
         )
 
         cursor.use {
@@ -84,8 +93,8 @@ class ReposicionDbHelper(context: Context) :
                 val responsable = it.getString(it.getColumnIndexOrThrow(COL_RESPONSABLE))
                 val sector = it.getString(it.getColumnIndexOrThrow(COL_SECTOR))
                 val material = it.getString(it.getColumnIndexOrThrow(COL_MATERIAL))
-                val cara1 = it.getString(it.getColumnIndexOrThrow(COL_CARA1))
-                val cara2 = it.getString(it.getColumnIndexOrThrow(COL_CARA2))
+                val alto = it.getString(it.getColumnIndexOrThrow(COL_ALTO))
+                val ancho = it.getString(it.getColumnIndexOrThrow(COL_ANCHO))
                 val motivo = it.getString(it.getColumnIndexOrThrow(COL_MOTIVO))
 
                 val pulidoC1 = it.getInt(it.getColumnIndexOrThrow(COL_PULIDO_C1)) == 1
@@ -103,8 +112,8 @@ class ReposicionDbHelper(context: Context) :
                         responsable = responsable,
                         sector = sector,
                         material = material,
-                        cara1 = cara1,
-                        cara2 = cara2,
+                        alto = alto,
+                        ancho = ancho,
                         motivo = motivo,
                         pulidoCara1 = pulidoC1,
                         templadoCara1 = templadoC1,
@@ -124,8 +133,7 @@ class ReposicionDbHelper(context: Context) :
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
         // SUBIR VERSION PARA FORZAR RECREACIÓN
-        private const val DATABASE_VERSION = 2
-
+        private const val DATABASE_VERSION = 3
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"
@@ -133,8 +141,8 @@ class ReposicionDbHelper(context: Context) :
         const val COL_RESPONSABLE = "responsable"
         const val COL_SECTOR = "sector"
         const val COL_MATERIAL = "material"
-        const val COL_CARA1 = "cara1"
-        const val COL_CARA2 = "cara2"
+        const val COL_ALTO = "alto"
+        const val COL_ANCHO = "ancho"
         const val COL_MOTIVO = "motivo"
 
         const val COL_PULIDO_C1 = "pulido_cara1"

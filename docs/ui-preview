@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920" fill="none">
+    <rect width="1080" height="1920" fill="#F5F7F6" />
+    <rect x="40" y="40" width="1000" height="240" rx="32" fill="white" stroke="#E1E9E6" stroke-width="3" />
+    <text x="80" y="120" font-family="'DejaVu Sans', sans-serif" font-size="42" font-weight="700" fill="#0A2F1F">Fontela Cristales</text>
+    <text x="80" y="170" font-family="'DejaVu Sans', sans-serif" font-size="28" fill="#335C4A">Reposición interna en una sola vista</text>
+    <rect x="760" y="90" width="140" height="70" rx="12" fill="#E4F0EA" stroke="#335C4A" stroke-width="3" />
+    <text x="790" y="135" font-family="'DejaVu Sans', sans-serif" font-size="26" fill="#335C4A">Salir</text>
+    <rect x="80" y="200" width="430" height="70" rx="14" fill="#0B8D60" />
+    <text x="115" y="245" font-family="'DejaVu Sans', sans-serif" font-size="26" fill="white">Nuevo pedido</text>
+    <rect x="570" y="200" width="430" height="70" rx="14" fill="white" stroke="#0B8D60" stroke-width="4" />
+    <text x="620" y="245" font-family="'DejaVu Sans', sans-serif" font-size="26" fill="#0B8D60">Ver registros</text>
+
+    <rect x="40" y="320" width="1000" height="400" rx="28" fill="white" stroke="#E6EBE9" stroke-width="3" />
+    <text x="80" y="360" font-family="'DejaVu Sans', sans-serif" font-size="38" font-weight="700" fill="#0A2F1F">Datos generales</text>
+    <text x="80" y="400" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#4F6B5E">Campos agrupados para rotación: todo queda a mano.</text>
+    <rect x="80" y="430" width="420" height="90" rx="14" fill="#F9FBFA" stroke="#E1E9E6" stroke-width="2" />
+    <text x="90" y="455" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#335C4A">Fecha</text>
+    <text x="100" y="495" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">dd/MM/yyyy</text>
+    <rect x="570" y="430" width="420" height="90" rx="14" fill="#F9FBFA" stroke="#E1E9E6" stroke-width="2" />
+    <text x="580" y="455" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#335C4A">N° de pedido</text>
+    <text x="590" y="495" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">00000</text>
+    <rect x="80" y="540" width="420" height="90" rx="14" fill="#F9FBFA" stroke="#E1E9E6" stroke-width="2" />
+    <text x="90" y="565" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#335C4A">Responsable</text>
+    <text x="100" y="605" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">Claudia</text>
+    <rect x="570" y="540" width="420" height="90" rx="14" fill="#F9FBFA" stroke="#E1E9E6" stroke-width="2" />
+    <text x="580" y="565" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#335C4A">Sector</text>
+    <text x="590" y="605" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">Corte</text>
+    <rect x="80" y="650" width="420" height="90" rx="14" fill="#F9FBFA" stroke="#E1E9E6" stroke-width="2" />
+    <text x="90" y="675" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#335C4A">Material</text>
+    <text x="100" y="715" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">Float 4mm</text>
+
+    <rect x="40" y="760" width="1000" height="600" rx="28" fill="white" stroke="#E6EBE9" stroke-width="3" />
+    <text x="80" y="800" font-family="'DejaVu Sans', sans-serif" font-size="38" font-weight="700" fill="#0A2F1F">Procesos por cara</text>
+    <text x="80" y="840" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#4F6B5E">Diseñado para usarse en horizontal: dos columnas siempre visibles.</text>
+    <rect x="80" y="880" width="420" height="320" rx="20" fill="#F3F8F6" stroke="#E6EBE9" stroke-width="2" />
+    <rect x="580" y="880" width="420" height="320" rx="20" fill="#F3F8F6" stroke="#E6EBE9" stroke-width="2" />
+    <text x="100" y="920" font-family="'DejaVu Sans', sans-serif" font-size="30" fill="#0A2F1F">Cara 1</text>
+    <text x="600" y="920" font-family="'DejaVu Sans', sans-serif" font-size="30" fill="#0A2F1F">Cara 2</text>
+    <text x="100" y="960" font-family="'DejaVu Sans', sans-serif" font-size="22" fill="#606060">Pulido   Templado</text>
+    <text x="600" y="960" font-family="'DejaVu Sans', sans-serif" font-size="22" fill="#606060">Pulido   Templado</text>
+    <rect x="100" y="980" width="380" height="190" rx="14" fill="white" stroke="#E6EBE9" stroke-width="2" />
+    <rect x="600" y="980" width="380" height="190" rx="14" fill="white" stroke="#E6EBE9" stroke-width="2" />
+    <text x="100" y="1230" font-family="'DejaVu Sans', sans-serif" font-size="30" fill="#0A2F1F">Motivo</text>
+    <rect x="80" y="1260" width="920" height="90" rx="16" fill="white" stroke="#E6EBE9" stroke-width="2" />
+    <text x="100" y="1315" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">Contanos por qué se repone</text>
+    <text x="80" y="1380" font-family="'DejaVu Sans', sans-serif" font-size="30" fill="#0A2F1F">Otros procesos</text>
+    <text x="80" y="1420" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">[ ] Ya es DVH</text>
+    <text x="80" y="1460" font-family="'DejaVu Sans', sans-serif" font-size="30" fill="#0A2F1F">Origen del corte</text>
+    <text x="80" y="1500" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#606060">( ) Cortar de Float    (●) Cortar de Laminado</text>
+
+    <rect x="40" y="1570" width="1000" height="200" rx="28" fill="white" stroke="#E6EBE9" stroke-width="3" />
+    <text x="80" y="1610" font-family="'DejaVu Sans', sans-serif" font-size="38" font-weight="700" fill="#0A2F1F">Vista previa</text>
+    <text x="80" y="1655" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#1B4B38">26/05/2025 · Pedido 1042</text>
+    <text x="80" y="1690" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#1B4B38">Float 4mm (Cortar de Laminado)</text>
+    <text x="80" y="1725" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#1B4B38">Cara 1: Pulido · Templado | Cara 2: Pulido</text>
+    <text x="80" y="1760" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#1B4B38">Sin DVH · Resp: Claudia · Sector: Corte</text>
+    <text x="80" y="1795" font-family="'DejaVu Sans', sans-serif" font-size="24" fill="#1B4B38">Motivo: Vidrio rayado</text>
+
+    <rect x="80" y="1820" width="430" height="70" rx="20" fill="white" stroke="#0B8D60" stroke-width="4" />
+    <text x="140" y="1865" font-family="'DejaVu Sans', sans-serif" font-size="26" fill="#0B8D60">Vista previa</text>
+    <rect x="570" y="1820" width="430" height="70" rx="20" fill="#0B8D60" stroke="#0B8D60" stroke-width="4" />
+    <text x="640" y="1865" font-family="'DejaVu Sans', sans-serif" font-size="26" fill="white">Guardar y enviar</text>
+</svg>

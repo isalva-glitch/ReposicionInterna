@@ -25,20 +25,21 @@ class RecordsAdapter(
         val tvMotivo = view.findViewById<TextView>(R.id.tvMotivo)
 
         tvPedido.text = "${record?.fecha ?: ""} · Pedido ${record?.numeroPedido ?: ""}"
-        tvMaterial.text = listOfNotNull(record?.material, record?.origenCorte).joinToString(" · ")
-
+        tvMaterial.text = listOfNotNull(
+            record?.material,
+            record?.origenCorte,
+            listOfNotNull(record?.alto, record?.ancho).takeIf { !it.isNullOrEmpty() }?.joinToString(" x ")
+        ).joinToString(" · ")
         val cara1 = listOfNotNull(
-            "C1",
+            "V1",
             if (record?.pulidoCara1 == true) "Pulido" else null,
-            if (record?.templadoCara1 == true) "Templado" else null,
-            record?.cara1?.takeIf { it.isNotEmpty() }
+            if (record?.templadoCara1 == true) "Templado" else null
         ).joinToString(" • ")
 
         val cara2 = listOfNotNull(
-            "C2",
+            "V2",
             if (record?.pulidoCara2 == true) "Pulido" else null,
-            if (record?.templadoCara2 == true) "Templado" else null,
-            record?.cara2?.takeIf { it.isNotEmpty() }
+            if (record?.templadoCara2 == true) "Templado" else null
         ).joinToString(" • ")
 
         tvProcesos.text = "$cara1   |   $cara2"
