@@ -258,6 +258,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "No se pudo generar el PDF", Toast.LENGTH_SHORT).show()
         }
+
+        clearForm()
+        Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun onPreviewPdf() {
