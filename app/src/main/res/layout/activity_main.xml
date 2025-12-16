@@ -33,12 +33,20 @@
                 android:textStyle="bold" />
 
             <TextView
-            @@ -43,291 +44,408 @@
+                android:id="@+id/tvSubtitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reposición interna"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <Button
             android:id="@+id/btnSalir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:text="Salir" />
-        </LinearLayout>
+    </LinearLayout>
 
         <!-- Fila de botones: Nuevo pedido / Ver registros -->
         <LinearLayout
