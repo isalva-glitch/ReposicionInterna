@@ -1,3 +1,4 @@
+
 package com.example.reposicioninterna
 
 import android.content.ContentValues
@@ -17,8 +18,8 @@ class ReposicionDbHelper(context: Context) :
                 $COL_RESPONSABLE TEXT,
                 $COL_SECTOR TEXT,
                 $COL_MATERIAL TEXT,
-                $COL_ALTO TEXT,
-                $COL_ANCHO TEXT,
+                ${'$'}COL_ALTO TEXT,
+                ${'$'}COL_ANCHO TEXT,
                 $COL_MOTIVO TEXT,
                 $COL_PULIDO_C1 INTEGER,
                 $COL_TEMPLADO_C1 INTEGER,
@@ -128,10 +129,11 @@ class ReposicionDbHelper(context: Context) :
         return result
     }
 
+
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
         // SUBIR VERSION PARA FORZAR RECREACIÓN
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 3
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"

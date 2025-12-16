@@ -23,8 +23,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spResponsable: Spinner
     private lateinit var spSector: Spinner
     private lateinit var spMaterial: Spinner
-    private lateinit var etAlto: EditText
-    private lateinit var etAncho: EditText
+    private lateinit var etCara1: EditText
+    private lateinit var etCara2: EditText
     private lateinit var etMotivo: EditText
     private lateinit var cbPulido: CheckBox
     private lateinit var cbTemplado: CheckBox
@@ -45,18 +45,22 @@ class MainActivity : AppCompatActivity() {
 
     // Listas (valores por defecto + se completan con CSV si existe)
     private val materialList = mutableListOf(
-        "Float "
-
+        "Float 4mm",
+        "Float 6mm",
+        "Laminado 3+3",
+        "Laminado 4+4"
     )
 
     private val responsableList = mutableListOf(
-        "Mauricio Fontela"
-
+        "Juan",
+        "Claudia",
+        "Carlos"
     )
 
     private val sectorList = mutableListOf(
-        "Filo Matado"
-
+        "Corte",
+        "Armado",
+        "Templado"
     )
 
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -74,8 +78,8 @@ class MainActivity : AppCompatActivity() {
         spResponsable = findViewById(R.id.spResponsable)
         spSector = findViewById(R.id.spSector)
         spMaterial = findViewById(R.id.spMaterial)
-        etAlto = findViewById(R.id.etAlto)
-        etAncho = findViewById(R.id.etAncho)
+        etCara1 = findViewById(R.id.etCara1)
+        etCara2 = findViewById(R.id.etCara2)
         etMotivo = findViewById(R.id.etMotivo)
         cbPulido = findViewById(R.id.cbPulido)
         cbTemplado = findViewById(R.id.cbTemplado)
@@ -254,6 +258,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "No se pudo generar el PDF", Toast.LENGTH_SHORT).show()
         }
+
         clearForm()
         Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT)
             .show()
@@ -292,8 +297,8 @@ class MainActivity : AppCompatActivity() {
         val sector = spSector.selectedItem?.toString()
         val material = spMaterial.selectedItem?.toString()
 
-        val alto = etAlto.text.toString().trim()
-        val ancho = etAncho.text.toString().trim()
+        val cara1 = etCara1.text.toString().trim()
+        val cara2 = etCara2.text.toString().trim()
         val motivo = etMotivo.text.toString().trim()
         if (responsable.isNullOrBlank()) {
             Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
@@ -310,21 +315,12 @@ class MainActivity : AppCompatActivity() {
             return null
         }
 
-        if (alto.isEmpty()) {
-            etAlto.error = "Obligatorio"
-            Toast.makeText(this, "Ingresá el alto", Toast.LENGTH_SHORT).show()
-            return null
-        }
-
-        if (ancho.isEmpty()) {
-            etAncho.error = "Obligatorio"
-            Toast.makeText(this, "Ingresá el ancho", Toast.LENGTH_SHORT).show()
-            return null
-        }
-
-        if (motivo.isEmpty()) {
+        if (cara1.isEmpty() && cara2.isEmpty() && motivo.isEmpty()) {
+            etCara1.error = "Completar al menos una cara"
+            etCara2.error = "Completar al menos una cara"
             etMotivo.error = "Indicar motivo"
-            Toast.makeText(this, "Detallá la reposición", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Detallá la reposición o el motivo", Toast.LENGTH_SHORT)
+                .show()
             return null
         }
 
@@ -346,8 +342,8 @@ class MainActivity : AppCompatActivity() {
             responsable = responsable,
             sector = sector,
             material = material,
-            alto = alto,
-            ancho = ancho,
+            cara1 = cara1,
+            cara2 = cara2,
             motivo = motivo,
             pulidoCara1 = pulidoCara1,
             templadoCara1 = templadoCara1,
@@ -366,8 +362,8 @@ class MainActivity : AppCompatActivity() {
     private fun clearForm() {
         initFecha()
         etNumeroPedido.text.clear()
-        etAlto.text.clear()
-        etAncho.text.clear()
+        etCara1.text.clear()
+        etCara2.text.clear()
         etMotivo.text.clear()
 
         if (spResponsable.adapter != null && spResponsable.adapter.count > 0) {
@@ -424,25 +420,23 @@ class MainActivity : AppCompatActivity() {
             canvas.drawText("Sector: ${record.sector ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 24f
 
-            canvas.drawText("Dimensiones: ${record.alto} x ${record.ancho}", 40f, y, paint); y += 24f
-
-            // Vidrio 1
+            // Cara 1
+            canvas.drawText("Cara 1:", 40f, y, paint); y += 16f
+            canvas.drawText("  Texto: ${record.cara1 ?: ""}", 40f, y, paint); y += 16f
             canvas.drawText(
-                "Vidrio 1 · Pulido: ${if (record.pulidoCara1) "SI" else "NO"}  " +
+                "  Pulido: ${if (record.pulidoCara1) "SI" else "NO"}  " +
                         "Templado: ${if (record.templadoCara1) "SI" else "NO"}",
-                40f,
-                y,
-                paint
-            ); y += 20f
+                40f, y, paint
+            ); y += 24f
 
-            // Vidrio 2
+            // Cara 2
+            canvas.drawText("Cara 2:", 40f, y, paint); y += 16f
+            canvas.drawText("  Texto: ${record.cara2 ?: ""}", 40f, y, paint); y += 16f
             canvas.drawText(
-                "Vidrio 2 · Pulido: ${if (record.pulidoCara2) "SI" else "NO"}  " +
+                "  Pulido: ${if (record.pulidoCara2) "SI" else "NO"}  " +
                         "Templado: ${if (record.templadoCara2) "SI" else "NO"}",
-                40f,
-                y,
-                paint
-            ); y += 20f
+                40f, y, paint
+            ); y += 24f
 
             // Motivo
             canvas.drawText("Motivo:", 40f, y, paint); y += 16f
@@ -526,9 +520,9 @@ class MainActivity : AppCompatActivity() {
 
         val resumen = """
                 ${record.fecha} · Pedido ${record.numeroPedido}
-                 ${'$'}{record.material ?: ""} (${'$'}{record.origenCorte}) · ${'$'}{record.alto} x ${'$'}{record.ancho}
-                Vidrio 1: ${'$'}procCara1 | Vidrio 2: ${'$'}procCara2
-                ${'$'}{if (record.yaEsDvh) "Es DVH" else "Sin DVH"} · Resp: ${'$'}{record.responsable ?: ""} · Sector: ${'$'}{record.sector ?: ""}
+                ${record.material ?: ""} (${record.origenCorte})
+                Cara 1: $procCara1 | Cara 2: $procCara2
+                ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
                 Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}
             """.trimIndent()
 
