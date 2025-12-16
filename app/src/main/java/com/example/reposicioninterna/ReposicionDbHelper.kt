@@ -1,4 +1,3 @@
-
 package com.example.reposicioninterna
 
 import android.content.ContentValues
@@ -128,7 +127,6 @@ class ReposicionDbHelper(context: Context) :
 
         return result
     }
-
 
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
