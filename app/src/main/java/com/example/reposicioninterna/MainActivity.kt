@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spResponsable: Spinner
     private lateinit var spSector: Spinner
     private lateinit var spMaterial: Spinner
+    private lateinit var etAlto: EditText
+    private lateinit var etAncho: EditText
+    private lateinit var etCara1: EditText
+    private lateinit var etCara2: EditText
     private lateinit var etMotivo: EditText
     private lateinit var cbPulido: CheckBox
     private lateinit var cbTemplado: CheckBox
@@ -76,6 +80,10 @@ class MainActivity : AppCompatActivity() {
         spResponsable = findViewById(R.id.spResponsable)
         spSector = findViewById(R.id.spSector)
         spMaterial = findViewById(R.id.spMaterial)
+        etAlto = findViewById(R.id.etAlto)
+        etAncho = findViewById(R.id.etAncho)
+        etCara1 = findViewById(R.id.etCara1)
+        etCara2 = findViewById(R.id.etCara2)
         etMotivo = findViewById(R.id.etMotivo)
         cbPulido = findViewById(R.id.cbPulido)
         cbTemplado = findViewById(R.id.cbTemplado)
@@ -294,6 +302,10 @@ class MainActivity : AppCompatActivity() {
         val material = spMaterial.selectedItem?.toString()
 
         val motivo = etMotivo.text.toString().trim()
+        val alto = etAlto.text.toString().trim()
+        val ancho = etAncho.text.toString().trim()
+        val cara1 = etCara1.text.toString().trim()
+        val cara2 = etCara2.text.toString().trim()
         if (responsable.isNullOrBlank()) {
             Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
             return null
@@ -327,8 +339,10 @@ class MainActivity : AppCompatActivity() {
             responsable = responsable,
             sector = sector,
             material = material,
-            cara1 = null,
-            cara2 = null,
+            alto = alto,
+            ancho = ancho,
+            cara1 = cara1,
+            cara2 = cara2,
             motivo = motivo,
             pulidoCara1 = pulidoCara1,
             templadoCara1 = templadoCara1,
@@ -348,6 +362,10 @@ class MainActivity : AppCompatActivity() {
         initFecha()
         etNumeroPedido.text.clear()
         etMotivo.text.clear()
+        etAlto.text.clear()
+        etAncho.text.clear()
+        etCara1.text.clear()
+        etCara2.text.clear()
 
         if (spResponsable.adapter != null && spResponsable.adapter.count > 0) {
             spResponsable.setSelection(0)
@@ -401,7 +419,18 @@ class MainActivity : AppCompatActivity() {
             canvas.drawText("N° Pedido: ${record.numeroPedido}", 40f, y, paint); y += 18f
             canvas.drawText("Responsable: ${record.responsable ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Sector: ${record.sector ?: ""}", 40f, y, paint); y += 18f
-            canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 24f
+            canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 18f
+            if (!record.alto.isNullOrBlank() || !record.ancho.isNullOrBlank()) {
+                canvas.drawText(
+                    "Medidas: ${record.alto.orEmpty()} x ${record.ancho.orEmpty()}",
+                    40f,
+                    y,
+                    paint
+                );
+                y += 24f
+            } else {
+                y += 6f
+            }
 
             // Procesos por vidrio
             canvas.drawText(
@@ -415,6 +444,15 @@ class MainActivity : AppCompatActivity() {
                         "Templado: ${if (record.templadoCara2) "SI" else "NO"}",
                 40f, y, paint
             ); y += 24f
+
+            if (!record.cara1.isNullOrBlank()) {
+                canvas.drawText("Notas Vidrio 1:", 40f, y, paint); y += 16f
+                canvas.drawText("  ${record.cara1}", 40f, y, paint); y += 12f
+            }
+            if (!record.cara2.isNullOrBlank()) {
+                canvas.drawText("Notas Vidrio 2:", 40f, y, paint); y += 16f
+                canvas.drawText("  ${record.cara2}", 40f, y, paint); y += 12f
+            }
 
             // Motivo
             canvas.drawText("Motivo:", 40f, y, paint); y += 16f
@@ -496,10 +534,18 @@ class MainActivity : AppCompatActivity() {
             if (record.templadoCara2) "Templado" else null
         ).joinToString(" · ").ifEmpty { "Sin procesos" }
 
+        val medidas = listOfNotNull(
+            record.alto?.takeIf { it.isNotBlank() },
+            record.ancho?.takeIf { it.isNotBlank() }
+        ).joinToString(" x ")
+
+        val detalleCara1 = record.cara1?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""
+        val detalleCara2 = record.cara2?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""
+
         val resumen = """
                 ${record.fecha} · Pedido ${record.numeroPedido}
-                ${record.material ?: ""} (${record.origenCorte})
-                Vidrio 1: $procCara1 | Vidrio 2: $procCara2
+                ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})
+                Vidrio 1: $procCara1$detalleCara1 | Vidrio 2: $procCara2$detalleCara2
                 ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
                 Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}
             """.trimIndent()

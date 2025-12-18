@@ -89,6 +89,35 @@
                     android:textStyle="bold"
                     android:textSize="20sp" />
 
+                <TextView
+                    android:id="@+id/tvDatosHint"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Campos agrupados para rotación: todo queda a mano."
+                    android:textColor="#4F6B5E"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvDatosGenerales" />
+
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:id="@+id/generalFlow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="tilFecha, tilNumeroPedido, spResponsableContainer, spSectorContainer, materialRow"
+                    app:flow_horizontalBias="0"
+                    app:flow_horizontalGap="12dp"
+                    app:flow_maxElementsWrap="2"
+                    app:flow_verticalGap="12dp"
+                    app:flow_wrapMode="aligned"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvDatosHint" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilFecha"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    android:layout_width="0dp"
                 <!-- Fecha y número de pedido en la misma fila -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -199,6 +228,11 @@
 
                 <!-- Dimensiones -->
                 <LinearLayout
+                    android:id="@+id/materialRow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -217,9 +251,32 @@
                         android:background="@android:color/white"
                         android:paddingVertical="10dp" />
 
-                    <TextView
+                    <LinearLayout
+                        android:id="@+id/spMaterialContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Material"
+                            android:textColor="#335C4A" />
+
+                        <Spinner
+                            android:id="@+id/spMaterial"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:drawable/editbox_dropdown_dark_frame" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/cbDvh"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Ya es DVH" />
                         android:layout_marginHorizontal="8dp"
                         android:text="X"
                         android:textStyle="bold"
@@ -328,6 +385,14 @@
                     android:layout_height="90dp"
                     android:background="@android:color/white"
                     android:gravity="top"
+                    android:hint="Contanos por qué se repone"
+                    android:inputType="textMultiLine"
+                    android:padding="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:inputType="textMultiLine" />
 
                 <CheckBox
