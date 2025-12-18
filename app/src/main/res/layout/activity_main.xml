@@ -267,7 +267,7 @@
                     android:textStyle="bold"
                     android:textSize="18sp" />
 
-                <!-- Vidrio 1 + Pulido/Templado -->
+                <!-- Vidrio 1 y Vidrio 2 en la misma línea -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -275,67 +275,71 @@
                     android:gravity="center_vertical"
                     android:paddingTop="8dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Vidrio 1" />
+                        android:orientation="vertical">
 
-                    <CheckBox
-                        android:id="@+id/cbPulido"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pulido" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vidrio 1" />
 
-                    <CheckBox
-                        android:id="@+id/cbTemplado"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Templado" />
-                </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
 
-                <EditText
-                    android:id="@+id/etCara1"
-                    android:layout_width="match_parent"
-                    android:layout_height="90dp"
-                    android:background="@android:color/white"
-                    android:gravity="top"
-                    android:inputType="textMultiLine" />
+                            <CheckBox
+                                android:id="@+id/cbPulido"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pulido" />
 
-                <!-- Vidrio 2 + Pulido/Templado -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="12dp">
+                            <CheckBox
+                                android:id="@+id/cbTemplado"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:text="Templado" />
+                        </LinearLayout>
+                    </LinearLayout>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Vidrio 2" />
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
 
-                    <CheckBox
-                        android:id="@+id/cbPulidoCara2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pulido" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vidrio 2" />
 
-                    <CheckBox
-                        android:id="@+id/cbTempladoCara2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Templado" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <CheckBox
+                                android:id="@+id/cbPulidoCara2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pulido" />
+
+                            <CheckBox
+                                android:id="@+id/cbTempladoCara2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:text="Templado" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
-
-                <EditText
-                    android:id="@+id/etCara2"
-                    android:layout_width="match_parent"
-                    android:layout_height="90dp"
-                    android:background="@android:color/white"
-                    android:gravity="top"
-                    android:inputType="textMultiLine" />
 
                 <!-- Origen del corte -->
                 <TextView
