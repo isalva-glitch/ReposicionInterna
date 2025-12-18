@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="#E0FFF5">
+    android:background="@color/app_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <!-- CABECERA: Título + Subtítulo + Salir -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -25,17 +32,20 @@
                     android:layout_height="wrap_content"
                     android:text="Fontela Cristales"
                     android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Reposición interna"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textColor="@color/muted_text" />
             </LinearLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSalir"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Salir" />
@@ -47,21 +57,27 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
+            android:baselineAligned="false">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNuevoPedido"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nuevo pedido" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnVerRegistros"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Ver registros" />
+                android:layout_marginStart="12dp"
+                android:text="Ver registros"
+                app:backgroundTint="@color/primary_button"
+                app:strokeColor="@color/primary_button"
+                app:strokeWidth="0dp"
+                app:cornerRadius="10dp" />
         </LinearLayout>
 
         <!-- DATOS GENERALES -->
@@ -69,8 +85,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:padding="12dp"
-            android:elevation="3dp">
+            android:padding="16dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/panel_bg"
+            app:strokeColor="@color/card_stroke"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -82,7 +102,8 @@
                     android:layout_height="wrap_content"
                     android:text="Datos generales"
                     android:textStyle="bold"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:textColor="@color/accent_text" />
 
                 <!-- Fecha y número de pedido en la misma fila -->
                 <LinearLayout
@@ -101,8 +122,7 @@
                         android:textSize="18sp"
                         android:focusable="false"
                         android:inputType="date"
-                        android:background="@android:color/white"
-                        android:paddingHorizontal="8dp" />
+                        android:background="@drawable/input_background" />
 
                     <EditText
                         android:id="@+id/etNumeroPedido"
@@ -112,8 +132,7 @@
                         android:layout_marginStart="8dp"
                         android:hint="N° de pedido"
                         android:inputType="number"
-                        android:background="@android:color/white"
-                        android:paddingHorizontal="8dp" />
+                        android:background="@drawable/input_background" />
                 </LinearLayout>
 
                 <!-- Responsable y Sector en dos columnas -->
@@ -134,13 +153,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Responsable"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textColor="@color/muted_text" />
 
                         <Spinner
                             android:id="@+id/spResponsable"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/white" />
+                            android:background="@drawable/input_background" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -154,13 +174,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sector"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textColor="@color/muted_text" />
 
                         <Spinner
                             android:id="@+id/spSector"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/white" />
+                            android:background="@drawable/input_background" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -182,13 +203,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Material"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textColor="@color/muted_text" />
 
                         <Spinner
                             android:id="@+id/spMaterial"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/white" />
+                            android:background="@drawable/input_background" />
                     </LinearLayout>
 
                     <CheckBox
@@ -196,7 +218,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="Ya es DVH" />
+                        android:text="Ya es DVH"
+                        android:textColor="@color/muted_text" />
                 </LinearLayout>
 
                 <!-- Dimensiones -->
@@ -216,8 +239,7 @@
                         android:inputType="numberDecimal"
                         android:textSize="20sp"
                         android:gravity="center"
-                        android:background="@android:color/white"
-                        android:paddingVertical="10dp" />
+                        android:background="@drawable/input_background" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -225,7 +247,8 @@
                         android:layout_marginHorizontal="8dp"
                         android:text="X"
                         android:textStyle="bold"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:textColor="@color/muted_text" />
 
                     <EditText
                         android:id="@+id/etAncho"
@@ -236,8 +259,7 @@
                         android:inputType="numberDecimal"
                         android:textSize="20sp"
                         android:gravity="center"
-                        android:background="@android:color/white"
-                        android:paddingVertical="10dp" />
+                        android:background="@drawable/input_background" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -247,8 +269,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:elevation="3dp"
-            android:padding="12dp">
+            android:padding="16dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/panel_bg"
+            app:strokeColor="@color/card_stroke"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -260,7 +286,8 @@
                     android:layout_height="wrap_content"
                     android:text="Procesos por vidrio"
                     android:textStyle="bold"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:textColor="@color/accent_text" />
 
                 <!-- Vidrios y procesos en dos columnas para reducir el alto -->
                 <LinearLayout
@@ -285,27 +312,30 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Vidrio 1" />
+                                android:text="Vidrio 1"
+                                android:textColor="@color/muted_text" />
 
                             <CheckBox
                                 android:id="@+id/cbPulido"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Pulido" />
+                                android:text="Pulido"
+                                android:textColor="@color/muted_text" />
 
                             <CheckBox
                                 android:id="@+id/cbTemplado"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
-                                android:text="Templado" />
+                                android:text="Templado"
+                                android:textColor="@color/muted_text" />
                         </LinearLayout>
 
                         <EditText
                             android:id="@+id/etCara1"
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
-                            android:background="@android:color/white"
+                            android:background="@drawable/input_background"
                             android:gravity="top"
                             android:inputType="textMultiLine" />
                     </LinearLayout>
@@ -327,27 +357,30 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Vidrio 2" />
+                                android:text="Vidrio 2"
+                                android:textColor="@color/muted_text" />
 
                             <CheckBox
                                 android:id="@+id/cbPulidoCara2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Pulido" />
+                                android:text="Pulido"
+                                android:textColor="@color/muted_text" />
 
                             <CheckBox
                                 android:id="@+id/cbTempladoCara2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
-                                android:text="Templado" />
+                                android:text="Templado"
+                                android:textColor="@color/muted_text" />
                         </LinearLayout>
 
                         <EditText
                             android:id="@+id/etCara2"
                             android:layout_width="match_parent"
                             android:layout_height="70dp"
-                            android:background="@android:color/white"
+                            android:background="@drawable/input_background"
                             android:gravity="top"
                             android:inputType="textMultiLine" />
                     </LinearLayout>
@@ -360,7 +393,8 @@
                     android:text="Origen del corte"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:paddingTop="12dp" />
+                    android:paddingTop="12dp"
+                    android:textColor="@color/accent_text" />
 
                 <RadioGroup
                     android:id="@+id/rgOrigenCorte"
@@ -372,7 +406,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cortar de Float"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textColor="@color/muted_text" />
 
                     <RadioButton
                         android:id="@+id/rbLaminado"
@@ -380,7 +415,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Cortar de Laminado"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textColor="@color/muted_text" />
                 </RadioGroup>
 
                 <!-- Motivo -->
@@ -389,13 +425,14 @@
                     android:layout_height="wrap_content"
                     android:text="Motivo"
                     android:paddingTop="8dp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_text" />
 
                 <EditText
                     android:id="@+id/etMotivo"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:background="@android:color/white"
+                    android:background="@drawable/input_background"
                     android:gravity="top"
                     android:inputType="textMultiLine" />
             </LinearLayout>
@@ -406,8 +443,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:elevation="2dp"
-            android:padding="12dp">
+            android:padding="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/panel_bg"
+            app:strokeColor="@color/card_stroke"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -420,14 +461,15 @@
                     android:text="Vista previa"
                     android:textStyle="bold"
                     android:textSize="18sp"
-                    android:paddingBottom="4dp" />
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/accent_text" />
 
                 <TextView
                     android:id="@+id/tvResumen"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@android:style/TextAppearance.Medium"
-                    android:textColor="#1B4B38"
+                    android:textColor="@color/muted_text"
                     android:lineSpacingExtra="4dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -437,22 +479,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="16dp">
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPreviewPdf"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Vista previa" />
+                android:text="Vista previa"
+                app:backgroundTint="@color/primary_button"
+                app:strokeColor="@color/primary_button"
+                app:strokeWidth="0dp"
+                app:cornerRadius="14dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardarEnviar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
-                android:text="Guardar y enviar" />
+                android:layout_marginStart="12dp"
+                android:text="Guardar y enviar"
+                app:backgroundTint="@color/primary_button"
+                app:strokeColor="@color/primary_button"
+                app:strokeWidth="0dp"
+                app:cornerRadius="14dp" />
         </LinearLayout>
 
     </LinearLayout>
+</ScrollView>
