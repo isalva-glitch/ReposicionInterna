@@ -1,36 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_bg"
     android:padding="16dp">
 
-    <TextView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Registros guardados"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_marginBottom="12dp"
+        android:padding="14dp"
+        app:cardBackgroundColor="@color/panel_bg"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="3dp"
+        app:strokeColor="@color/card_stroke"
+        app:strokeWidth="1dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <Button
-            android:id="@+id/btnVolver"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Volver" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Registros guardados"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/accent_text" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVolver"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Volver" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <ListView
         android:id="@+id/lvRegistros"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="12dp" />
 
 </LinearLayout>

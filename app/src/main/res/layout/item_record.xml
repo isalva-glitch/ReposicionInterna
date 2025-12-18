@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:elevation="2dp"
-    android:padding="12dp">
+    android:padding="12dp"
+    app:cardBackgroundColor="@color/panel_bg"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/card_stroke"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,6 +23,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="16sp"
+            android:textColor="@color/accent_text"
             android:text="Pedido" />
 
         <TextView
@@ -25,26 +31,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textColor="#0F3F2C"
+            android:textColor="@color/accent_text"
             android:text="Material" />
 
         <TextView
             android:id="@+id/tvProcesos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Procesos" />
+            android:text="Procesos"
+            android:textColor="@color/muted_text" />
 
         <TextView
             android:id="@+id/tvResponsable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Responsable" />
+            android:text="Responsable"
+            android:textColor="@color/muted_text" />
 
         <TextView
             android:id="@+id/tvMotivo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Motivo"
-            android:textColor="#444" />
+            android:textColor="@color/muted_text" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

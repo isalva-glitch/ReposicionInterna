@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="app_bg">#E0FFF5</color>
-    <color name="spinner_bg">#FFFFFF</color>
+    <color name="panel_bg">#F8FFFD</color>
+    <color name="card_stroke">#B3E6D7</color>
+    <color name="accent_text">#0F3F2C</color>
+    <color name="muted_text">#4A6358</color>
+    <color name="primary_button">#0B7D5F</color>
 </resources>
