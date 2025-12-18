@@ -195,12 +195,6 @@
                             android:layout_height="wrap_content"
                             android:background="@android:color/white" />
                     </LinearLayout>
-                    <CheckBox
-                        android:id="@+id/cbDvh"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Ya es DVH" />
                 </LinearLayout>
 
                 <!-- Dimensiones -->
@@ -336,7 +330,12 @@
                     android:gravity="top"
                     android:inputType="textMultiLine" />
 
-
+                <CheckBox
+                    android:id="@+id/cbDvh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="12dp"
+                    android:text="Ya es DVH" />
 
                 <!-- Origen del corte -->
                 <TextView
