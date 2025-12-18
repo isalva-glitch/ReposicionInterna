@@ -138,7 +138,7 @@
                     android:id="@+id/generalFlow"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:constraint_referenced_ids="tilFecha, tilNumeroPedido, spResponsableContainer, spSectorContainer, spMaterialContainer"
+                    app:constraint_referenced_ids="tilFecha, tilNumeroPedido, spResponsableContainer, spSectorContainer, materialRow"
                     app:flow_horizontalBias="0"
                     app:flow_horizontalGap="12dp"
                     app:flow_maxElementsWrap="2"
@@ -228,22 +228,38 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/spMaterialContainer"
+                    android:id="@+id/materialRow"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <TextView
+                    <LinearLayout
+                        android:id="@+id/spMaterialContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Material"
+                            android:textColor="#335C4A" />
+
+                        <Spinner
+                            android:id="@+id/spMaterial"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:drawable/editbox_dropdown_dark_frame" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/cbDvh"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Material"
-                        android:textColor="#335C4A" />
-
-                    <Spinner
-                        android:id="@+id/spMaterial"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:drawable/editbox_dropdown_dark_frame" />
+                        android:layout_marginStart="12dp"
+                        android:text="Ya es DVH" />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -396,20 +412,6 @@
                     android:hint="Contanos por qué se repone"
                     android:inputType="textMultiLine"
                     android:padding="10dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Otros procesos"
-                    android:textColor="#0A2F1F"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/cbDvh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ya es DVH" />
 
                 <TextView
                     android:layout_width="match_parent"
