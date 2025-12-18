@@ -6,7 +6,7 @@ Aplicación Android para gestionar pedidos de reposición de cristales: captura 
 
 ![Vista previa mock de la pantalla principal](docs/ui-preview.svg)
 
-La maqueta muestra todos los controles en una sola vista (también en rotación) con botones de **Vista previa** y **Guardar y enviar**, selección de procesos para Cara 1 y Cara 2 (Pulido y Templado), campo de motivo y opciones de origen del corte. Al **Guardar y enviar** se limpia el formulario para ingresar un nuevo registro y evitar duplicados.
+La maqueta refleja el layout actual en el repo (fondo verde claro, dos tarjetas principales y botones de "Vista previa" / "Guardar y enviar"), con controles para fecha, número de pedido, responsable, sector, material, dimensiones, procesos por cara, DVH, origen del corte y motivo.
 
 ## Datos maestros
 
