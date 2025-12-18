@@ -11,4 +11,7 @@
     <string name="email_subject_pdf">Reposición interna de cristales</string>
     <string name="email_body_pdf">Se adjunta reposición interna generada desde la tablet.</string>
     <string name="email_chooser_pdf">Enviar PDF…</string>
+    <string name="records_recent">Mostrando los últimos %1$d registros</string>
+    <string name="records_recent_limit">Mostrando los últimos %1$d registros recientes</string>
+    <string name="records_recent_single">Mostrando el último registro</string>
 </resources>

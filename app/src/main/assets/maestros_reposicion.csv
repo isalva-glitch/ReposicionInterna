@@ -1,10 +1,10 @@
 Material;Responsable;Sector
-Float Incoloros;Marcos Montalbano;Ingenieria
-Float 2 mm Incoloro ;;
-Float 3 mm Incoloro;;
-Float 4 mm Incoloro;;
-Float 5 mm Incoloro;;
-Float 6 mm Incoloro;;
+Float Incoloros;Marcos Montalbano;Taller
+Float 2 mm Incoloro ;Claudia Velazquez;Laminado
+Float 3 mm Incoloro;Ivan Salva;Corte
+Float 4 mm Incoloro;;DVH
+Float 5 mm Incoloro;;Expedicion
+Float 6 mm Incoloro;;Ingenieria
 Float 8 mm Incoloro;;
 Float 10 mm Incoloro;;
 Float 12 mm Incoloro;;
