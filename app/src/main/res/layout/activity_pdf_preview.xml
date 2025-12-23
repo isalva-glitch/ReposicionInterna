@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/app_bg">
 
     <LinearLayout
         android:orientation="vertical"
@@ -16,47 +18,66 @@
             android:text="Vista previa del PDF"
             android:textStyle="bold"
             android:textSize="20sp"
+            android:textColor="@color/accent_text"
             android:paddingBottom="8dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Revisá la primera página antes de enviarla o abrirla con otra app."
+            android:textColor="@color/muted_text"
             android:paddingBottom="12dp" />
 
-        <ImageView
-            android:id="@+id/ivPdfPreview"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:contentDescription="Vista previa" />
+            android:layout_marginBottom="12dp"
+            android:padding="10dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/panel_bg"
+            app:strokeColor="@color/card_stroke"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivPdfPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:contentDescription="Vista previa" />
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:paddingTop="16dp">
+            android:paddingTop="8dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendPdf"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Enviar PDF" />
+                android:text="Enviar PDF"
+                app:backgroundTint="@color/primary_button"
+                app:strokeColor="@color/primary_button"
+                app:cornerRadius="12dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOpenExternal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="12dp"
-                android:text="Abrir con otra app" />
+                android:text="Abrir con otra app"
+                style="?attr/materialButtonOutlinedStyle" />
         </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClosePreview"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
