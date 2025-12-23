@@ -2,50 +2,73 @@ package com.example.reposicioninterna
 
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.graphics.Paint
-import android.graphics.Typeface
-import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Bundle
-import android.widget.*
+import android.view.View
+import android.widget.CheckBox
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.LinkedHashSet
+import java.util.Locale
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    // Controles
-    private lateinit var etFecha: EditText
-    private lateinit var etNumeroPedido: EditText
-    private lateinit var spResponsable: Spinner
-    private lateinit var spSector: Spinner
-    private lateinit var spMaterial: Spinner
-    private lateinit var etAlto: EditText
-    private lateinit var etAncho: EditText
-    private lateinit var etCara1: EditText
-    private lateinit var etCara2: EditText
-    private lateinit var etMotivo: EditText
-    private lateinit var cbPulido: CheckBox
-    private lateinit var cbTemplado: CheckBox
-    private lateinit var cbPulidoCara2: CheckBox
-    private lateinit var cbTempladoCara2: CheckBox
+    private lateinit var topAppBar: MaterialToolbar
+    private lateinit var tilFecha: TextInputLayout
+    private lateinit var tilNumeroPedido: TextInputLayout
+    private lateinit var tilResponsable: TextInputLayout
+    private lateinit var tilSector: TextInputLayout
+    private lateinit var tilMaterial: TextInputLayout
+    private lateinit var tilAlto: TextInputLayout
+    private lateinit var tilAncho: TextInputLayout
+    private lateinit var tilCara1: TextInputLayout
+    private lateinit var tilCara2: TextInputLayout
+    private lateinit var tilMotivo: TextInputLayout
+
+    private lateinit var etFecha: TextInputEditText
+    private lateinit var etNumeroPedido: TextInputEditText
+    private lateinit var etAlto: TextInputEditText
+    private lateinit var etAncho: TextInputEditText
+    private lateinit var etCara1: TextInputEditText
+    private lateinit var etCara2: TextInputEditText
+    private lateinit var etMotivo: TextInputEditText
+    private lateinit var actvResponsable: MaterialAutoCompleteTextView
+    private lateinit var actvSector: MaterialAutoCompleteTextView
+    private lateinit var actvMaterial: MaterialAutoCompleteTextView
+
+    private lateinit var chipGroupCara1: ChipGroup
+    private lateinit var chipGroupCara2: ChipGroup
+    private lateinit var chipPulido: Chip
+    private lateinit var chipTemplado: Chip
+    private lateinit var chipPulidoCara2: Chip
+    private lateinit var chipTempladoCara2: Chip
     private lateinit var cbDvh: CheckBox
     private lateinit var rgOrigenCorte: RadioGroup
     private lateinit var rbFloat: RadioButton
     private lateinit var rbLaminado: RadioButton
-    private lateinit var btnGuardarEnviar: Button
-    private lateinit var btnPreviewPdf: Button
-    private lateinit var btnNuevoPedido: Button
-    private lateinit var btnVerRegistros: Button
-    private lateinit var btnSalir: Button
-    private lateinit var tvResumen: TextView
 
-    private lateinit var dbHelper: ReposicionDbHelper
+    private lateinit var btnGuardarEnviar: com.google.android.material.button.MaterialButton
+    private lateinit var btnPreviewPdf: com.google.android.material.button.MaterialButton
+    private lateinit var previewPlaceholder: View
+    private lateinit var chipResumen: ChipGroup
 
-    // Listas (valores por defecto + se completan con CSV si existe)
+    private lateinit var repository: ReposicionRepository
+
     private val materialList = mutableListOf(
         "Float 4mm",
         "Float 6mm",
@@ -69,67 +92,87 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
 
-        dbHelper = ReposicionDbHelper(this)
+        repository = ReposicionRepository.getInstance(this)
+        bindViews()
+        initFecha()
+        initDatePicker()
+        loadMastersFromCsv()
+        setupDropdowns()
+        renderPreview(null)
 
-        // Vincular vistas
+        btnPreviewPdf.setOnClickListener { lifecycleScope.launch { onPreviewPdf() } }
+        btnGuardarEnviar.setOnClickListener { lifecycleScope.launch { onGuardarYEnviar() } }
+
+        topAppBar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_new -> {
+                    clearForm()
+                    Toast.makeText(this, "Formulario listo para nuevo pedido", Toast.LENGTH_SHORT)
+                        .show()
+                    true
+                }
+
+                R.id.action_history -> {
+                    startActivity(Intent(this, RecordsActivity::class.java))
+                    true
+                }
+
+                R.id.action_exit -> {
+                    finish()
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun bindViews() {
+        topAppBar = findViewById(R.id.topAppBar)
+        tilFecha = findViewById(R.id.tilFecha)
+        tilNumeroPedido = findViewById(R.id.tilNumeroPedido)
+        tilResponsable = findViewById(R.id.tilResponsable)
+        tilSector = findViewById(R.id.tilSector)
+        tilMaterial = findViewById(R.id.tilMaterial)
+        tilAlto = findViewById(R.id.tilAlto)
+        tilAncho = findViewById(R.id.tilAncho)
+        tilCara1 = findViewById(R.id.tilCara1)
+        tilCara2 = findViewById(R.id.tilCara2)
+        tilMotivo = findViewById(R.id.tilMotivo)
+
         etFecha = findViewById(R.id.etFecha)
         etNumeroPedido = findViewById(R.id.etNumeroPedido)
-        spResponsable = findViewById(R.id.spResponsable)
-        spSector = findViewById(R.id.spSector)
-        spMaterial = findViewById(R.id.spMaterial)
         etAlto = findViewById(R.id.etAlto)
         etAncho = findViewById(R.id.etAncho)
         etCara1 = findViewById(R.id.etCara1)
         etCara2 = findViewById(R.id.etCara2)
         etMotivo = findViewById(R.id.etMotivo)
-        cbPulido = findViewById(R.id.cbPulido)
-        cbTemplado = findViewById(R.id.cbTemplado)
-        cbPulidoCara2 = findViewById(R.id.cbPulidoCara2)
-        cbTempladoCara2 = findViewById(R.id.cbTempladoCara2)
+        actvResponsable = findViewById(R.id.actvResponsable)
+        actvSector = findViewById(R.id.actvSector)
+        actvMaterial = findViewById(R.id.actvMaterial)
+
+        chipGroupCara1 = findViewById(R.id.chipGroupCara1)
+        chipGroupCara2 = findViewById(R.id.chipGroupCara2)
+        chipPulido = findViewById(R.id.chipPulido)
+        chipTemplado = findViewById(R.id.chipTemplado)
+        chipPulidoCara2 = findViewById(R.id.chipPulidoCara2)
+        chipTempladoCara2 = findViewById(R.id.chipTempladoCara2)
         cbDvh = findViewById(R.id.cbDvh)
         rgOrigenCorte = findViewById(R.id.rgOrigenCorte)
         rbFloat = findViewById(R.id.rbFloat)
         rbLaminado = findViewById(R.id.rbLaminado)
+
         btnGuardarEnviar = findViewById(R.id.btnGuardarEnviar)
         btnPreviewPdf = findViewById(R.id.btnPreviewPdf)
-        btnNuevoPedido = findViewById(R.id.btnNuevoPedido)
-        btnVerRegistros = findViewById(R.id.btnVerRegistros)
-        btnSalir = findViewById(R.id.btnSalir)
-        tvResumen = findViewById(R.id.tvResumen)
-
-        initFecha()
-        initDatePicker()
-        tvResumen.text = getString(R.string.preview_hint)
-
-        // Cargar maestros desde CSV (si está ok)
-        loadMastersFromCsv()
-        setupSpinners()
-
-        // BOTONES
-        btnPreviewPdf.setOnClickListener { onPreviewPdf() }
-        btnGuardarEnviar.setOnClickListener { onGuardarYEnviar() }
-
-        btnNuevoPedido.setOnClickListener {
-            clearForm()
-            Toast.makeText(this, "Formulario listo para nuevo pedido", Toast.LENGTH_SHORT).show()
-        }
-
-        btnVerRegistros.setOnClickListener {
-            startActivity(Intent(this, RecordsActivity::class.java))
-        }
-
-        btnSalir.setOnClickListener {
-            finishAffinity()
-        }
+        previewPlaceholder = findViewById(R.id.previewPlaceholder)
+        chipResumen = findViewById(R.id.chipResumen)
     }
 
-    // ---------- INICIALIZACIÓN FECHA ----------
-
     private fun initFecha() {
-        etFecha.setText(dateFormat.format(Date()))
+        val today = Calendar.getInstance().time
+        etFecha.setText(dateFormat.format(today))
     }
 
     private fun initDatePicker() {
@@ -150,20 +193,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ---------- LECTURA CSV MAESTROS ----------
-
-    /**
-     * Lee maestros_reposicion.csv desde assets y arma las listas
-     * de Material, Responsable y Sector.
-     *
-     * Ubicación en el proyecto:
-     *   app/src/main/assets/maestros_reposicion.csv
-     *
-     * Formato:
-     *   Material;Responsable;Sector
-     *   Float 4mm;Juan;Corte
-     *   ...
-     */
     private fun loadMastersFromCsv() {
         try {
             val materials = LinkedHashSet<String>(materialList)
@@ -174,16 +203,9 @@ class MainActivity : AppCompatActivity() {
                 lines.forEachIndexed { index, rawLine ->
                     val line = rawLine.trim()
                     if (line.isEmpty()) return@forEachIndexed
+                    if (index == 0 && line.contains("Material", ignoreCase = true)) return@forEachIndexed
 
-                    // Saltar cabecera si es primera línea con "Material"
-                    if (index == 0 && line.contains("Material", ignoreCase = true)) {
-                        return@forEachIndexed
-                    }
-
-                    // Soportar ; o ,
                     val parts = line.split(';', ',').map { it.trim() }
-                    if (parts.isEmpty()) return@forEachIndexed
-
                     val material = parts.getOrNull(0)
                     val responsable = parts.getOrNull(1)
                     val sector = parts.getOrNull(2)
@@ -194,15 +216,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            materialList.clear()
-            materialList.addAll(materials)
-
-            responsableList.clear()
-            responsableList.addAll(responsables)
-
-            sectorList.clear()
-            sectorList.addAll(sectores)
-
+            materialList.clear(); materialList.addAll(materials)
+            responsableList.clear(); responsableList.addAll(responsables)
+            sectorList.clear(); sectorList.addAll(sectores)
         } catch (t: Throwable) {
             t.printStackTrace()
             Toast.makeText(
@@ -213,41 +229,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSpinners() {
-        val materialAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            materialList
-        ).also {
-            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        spMaterial.adapter = materialAdapter
-
-        val respAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            responsableList
-        ).also {
-            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        spResponsable.adapter = respAdapter
-
-        val sectorAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            sectorList
-        ).also {
-            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        spSector.adapter = sectorAdapter
+    private fun setupDropdowns() {
+        actvMaterial.setAdapter(
+            android.widget.ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                materialList
+            )
+        )
+        actvResponsable.setAdapter(
+            android.widget.ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                responsableList
+            )
+        )
+        actvSector.setAdapter(
+            android.widget.ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                sectorList
+            )
+        )
     }
 
-    // ---------- BOTONES PRINCIPALES ----------
-
-    private fun onGuardarYEnviar() {
+    private suspend fun onGuardarYEnviar() {
         val record = gatherRecord() ?: return
 
-        val savedId = dbHelper.insertRecord(record)
+        if (repository.isDuplicated(record.fecha, record.numeroPedido)) {
+            tilNumeroPedido.error = "Ya existe un pedido con esa fecha y número"
+            return
+        }
+
+        val pdfFile = PdfGenerator.generate(this, record)
+        val savedId = repository.save(record.copy(pdfPath = pdfFile?.absolutePath))
         if (savedId > 0) {
             Toast.makeText(this, "Registro #$savedId guardado", Toast.LENGTH_SHORT).show()
         } else {
@@ -255,77 +270,65 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-
-        val pdfFile = generatePdfForRecord(record)
-        if (pdfFile != null) {
-            sendEmailWithAttachment(pdfFile, "application/pdf")
-        } else {
-            Toast.makeText(this, "No se pudo generar el PDF", Toast.LENGTH_SHORT).show()
-        }
-
+        pdfFile?.let { promptSendWithChooser(it) }
         clearForm()
         Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT)
             .show()
     }
 
-    private fun onPreviewPdf() {
+    private suspend fun onPreviewPdf() {
         val record = gatherRecord() ?: return
-        val pdfFile = generatePdfForRecord(record)
+        val pdfFile = PdfGenerator.generate(this, record)
         if (pdfFile != null) {
             openPdfPreview(pdfFile)
         } else {
             Toast.makeText(this, "No se pudo generar la vista previa", Toast.LENGTH_SHORT).show()
         }
     }
-    // ---------- ARMADO DEL REGISTRO ----------
 
     private fun gatherRecord(): ReposicionRecord? {
-        val fecha = etFecha.text.toString().trim()
-        val numeroPedido = etNumeroPedido.text.toString().trim()
+        clearErrors()
+        val fecha = etFecha.text?.toString()?.trim().orEmpty()
+        val numeroPedido = etNumeroPedido.text?.toString()?.trim().orEmpty()
 
         if (fecha.isEmpty() || !isValidDate(fecha)) {
-            etFecha.error = "Fecha inválida"
-            Toast.makeText(this, "Indicá la fecha con formato dd/MM/yyyy", Toast.LENGTH_SHORT)
-                .show()
+            tilFecha.error = "Fecha inválida"
             return null
         }
-
 
         if (numeroPedido.isEmpty()) {
-            etNumeroPedido.error = "Obligatorio"
-            Toast.makeText(this, "Ingresar N° de pedido", Toast.LENGTH_SHORT).show()
+            tilNumeroPedido.error = "Obligatorio"
             return null
         }
 
-        val responsable = spResponsable.selectedItem?.toString()
-        val sector = spSector.selectedItem?.toString()
-        val material = spMaterial.selectedItem?.toString()
+        val responsable = actvResponsable.text?.toString()?.trim().orEmpty()
+        val sector = actvSector.text?.toString()?.trim().orEmpty()
+        val material = actvMaterial.text?.toString()?.trim().orEmpty()
+        val motivo = etMotivo.text?.toString()?.trim()
+        val alto = etAlto.text?.toString()?.trim().orEmpty()
+        val ancho = etAncho.text?.toString()?.trim().orEmpty()
+        val cara1 = etCara1.text?.toString()?.trim()
+        val cara2 = etCara2.text?.toString()?.trim()
 
-        val motivo = etMotivo.text.toString().trim()
-        val alto = etAlto.text.toString().trim()
-        val ancho = etAncho.text.toString().trim()
-        val cara1 = etCara1.text.toString().trim()
-        val cara2 = etCara2.text.toString().trim()
-        if (responsable.isNullOrBlank()) {
-            Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
-            return null
-        }
+        if (responsable.isEmpty()) tilResponsable.error = "Elegí un responsable"
+        if (sector.isEmpty()) tilSector.error = "Elegí el sector"
+        if (material.isEmpty()) tilMaterial.error = "Elegí el material"
+        if (responsable.isEmpty() || sector.isEmpty() || material.isEmpty()) return null
 
-        if (sector.isNullOrBlank()) {
-            Toast.makeText(this, "Elegí el sector", Toast.LENGTH_SHORT).show()
-            return null
-        }
-
-        if (material.isNullOrBlank()) {
-            Toast.makeText(this, "Elegí el material", Toast.LENGTH_SHORT).show()
-            return null
-        }
-
-        val pulidoCara1 = cbPulido.isChecked
-        val templadoCara1 = cbTemplado.isChecked
-        val pulidoCara2 = cbPulidoCara2.isChecked
-        val templadoCara2 = cbTempladoCara2.isChecked
+        val pulidoCara1 = chipPulido.isChecked
+        val templadoCara1 = chipTemplado.isChecked
+        val pulidoCara2 = chipPulidoCara2.isChecked
+        val templadoCara2 = chipTempladoCara2.isChecked
         val yaEsDvh = cbDvh.isChecked
+
+        val requiresDimensions = pulidoCara1 || templadoCara1 || pulidoCara2 || templadoCara2 ||
+                (!cara1.isNullOrBlank()) || (!cara2.isNullOrBlank())
+
+        if (requiresDimensions) {
+            if (alto.toDoubleOrNull() == null) tilAlto.error = "Completar alto"
+            if (ancho.toDoubleOrNull() == null) tilAncho.error = "Completar ancho"
+            if (tilAlto.error != null || tilAncho.error != null) return null
+        }
 
         val origenCorte = when (rgOrigenCorte.checkedRadioButtonId) {
             rbFloat.id -> "Cortar de Float"
@@ -352,165 +355,44 @@ class MainActivity : AppCompatActivity() {
             origenCorte = origenCorte
         )
 
-        updateResumen(record)
+        renderPreview(record)
         return record
     }
 
-    // ---------- LIMPIAR FORMULARIO (NUEVO PEDIDO) ----------
-
     private fun clearForm() {
         initFecha()
-        etNumeroPedido.text.clear()
-        etMotivo.text.clear()
-        etAlto.text.clear()
-        etAncho.text.clear()
-        etCara1.text.clear()
-        etCara2.text.clear()
+        etNumeroPedido.text?.clear()
+        etMotivo.text?.clear()
+        etAlto.text?.clear()
+        etAncho.text?.clear()
+        etCara1.text?.clear()
+        etCara2.text?.clear()
+        actvResponsable.text = null
+        actvSector.text = null
+        actvMaterial.text = null
 
-        if (spResponsable.adapter != null && spResponsable.adapter.count > 0) {
-            spResponsable.setSelection(0)
-        }
-        if (spSector.adapter != null && spSector.adapter.count > 0) {
-            spSector.setSelection(0)
-        }
-        if (spMaterial.adapter != null && spMaterial.adapter.count > 0) {
-            spMaterial.setSelection(0)
-        }
-
-        cbPulido.isChecked = false
-        cbTemplado.isChecked = false
-        cbPulidoCara2.isChecked = false
-        cbTempladoCara2.isChecked = false
+        chipGroupCara1.clearCheck()
+        chipGroupCara2.clearCheck()
         cbDvh.isChecked = false
-
         rbLaminado.isChecked = true
 
-
-        tvResumen.text = getString(R.string.preview_hint)
+        clearErrors()
+        renderPreview(null)
     }
 
-    // ---------- GENERACIÓN DE PDF ----------
-
-    private fun generatePdfForRecord(record: ReposicionRecord): File? {
-        return try {
-            val pdfDocument = PdfDocument()
-            val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 aprox
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
-
-            val paint = Paint().apply {
-                color = android.graphics.Color.BLACK
-                textSize = 12f
-            }
-            val titlePaint = Paint().apply {
-                color = android.graphics.Color.BLACK
-                textSize = 18f
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            }
-
-            var y = 40f
-
-            // Título
-            canvas.drawText("Fontela Cristales - Reposición interna", 40f, y, titlePaint)
-            y += 30f
-
-            // Datos generales
-            canvas.drawText("Fecha: ${record.fecha}", 40f, y, paint); y += 18f
-            canvas.drawText("N° Pedido: ${record.numeroPedido}", 40f, y, paint); y += 18f
-            canvas.drawText("Responsable: ${record.responsable ?: ""}", 40f, y, paint); y += 18f
-            canvas.drawText("Sector: ${record.sector ?: ""}", 40f, y, paint); y += 18f
-            canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 18f
-            if (!record.alto.isNullOrBlank() || !record.ancho.isNullOrBlank()) {
-                canvas.drawText(
-                    "Medidas: ${record.alto.orEmpty()} x ${record.ancho.orEmpty()}",
-                    40f,
-                    y,
-                    paint
-                );
-                y += 24f
-            } else {
-                y += 6f
-            }
-
-            // Procesos por vidrio
-            canvas.drawText(
-                "Vidrio 1 - Pulido: ${if (record.pulidoCara1) "SI" else "NO"}  " +
-                        "Templado: ${if (record.templadoCara1) "SI" else "NO"}",
-                40f, y, paint
-            ); y += 20f
-
-            canvas.drawText(
-                "Vidrio 2 - Pulido: ${if (record.pulidoCara2) "SI" else "NO"}  " +
-                        "Templado: ${if (record.templadoCara2) "SI" else "NO"}",
-                40f, y, paint
-            ); y += 24f
-
-            if (!record.cara1.isNullOrBlank()) {
-                canvas.drawText("Notas Vidrio 1:", 40f, y, paint); y += 16f
-                canvas.drawText("  ${record.cara1}", 40f, y, paint); y += 12f
-            }
-            if (!record.cara2.isNullOrBlank()) {
-                canvas.drawText("Notas Vidrio 2:", 40f, y, paint); y += 16f
-                canvas.drawText("  ${record.cara2}", 40f, y, paint); y += 12f
-            }
-
-            // Motivo
-            canvas.drawText("Motivo:", 40f, y, paint); y += 16f
-            canvas.drawText("  ${record.motivo ?: ""}", 40f, y, paint); y += 24f
-
-            // Otros
-            canvas.drawText(
-                "Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}",
-                40f,
-                y,
-                paint
-            ); y += 18f
-            canvas.drawText("Origen corte: ${record.origenCorte}", 40f, y, paint); y += 18f
-
-            pdfDocument.finishPage(page)
-
-            val fileName = "reposicion_${record.numeroPedido}_${System.currentTimeMillis()}.pdf"
-            val file = File(cacheDir, fileName)
-            FileOutputStream(file).use { out ->
-                pdfDocument.writeTo(out)
-            }
-            pdfDocument.close()
-
-            file
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    // ---------- ENVÍO EMAIL CON ADJUNTO ----------
-
-    private fun sendEmailWithAttachment(file: File, mimeType: String) {
-        val authority = "${applicationContext.packageName}.fileprovider"
-        val uri: Uri = FileProvider.getUriForFile(this, authority, file)
-
-        val emailIntent = Intent(Intent.ACTION_SEND).apply {
-            type = mimeType
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("claudia@fontela.com.ar"))
-            putExtra(Intent.EXTRA_SUBJECT, "Reposición interna de cristales")
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "Se adjunta reposición interna generada desde la tablet."
-            )
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        startActivity(Intent.createChooser(emailIntent, "Enviar email..."))
-    }
-
-
-    private fun openPdfPreview(file: File) {
-        val intent = Intent(this, PdfPreviewActivity::class.java).apply {
-            putExtra(PdfPreviewActivity.EXTRA_PDF_PATH, file.absolutePath)
-        }
-
-        startActivity(intent)
+    private fun clearErrors() {
+        listOf(
+            tilFecha,
+            tilNumeroPedido,
+            tilResponsable,
+            tilSector,
+            tilMaterial,
+            tilAlto,
+            tilAncho,
+            tilCara1,
+            tilCara2,
+            tilMotivo
+        ).forEach { it.error = null }
     }
 
     private fun isValidDate(value: String): Boolean {
@@ -523,33 +405,102 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateResumen(record: ReposicionRecord) {
-        val procCara1 = listOfNotNull(
-            if (record.pulidoCara1) "Pulido" else null,
-            if (record.templadoCara1) "Templado" else null
-        ).joinToString(" · ").ifEmpty { "Sin procesos" }
+    private fun renderPreview(record: ReposicionRecord?) {
+        chipResumen.removeAllViews()
+        if (record == null) {
+            chipResumen.visibility = View.GONE
+            previewPlaceholder.visibility = View.VISIBLE
+            return
+        }
 
-        val procCara2 = listOfNotNull(
-            if (record.pulidoCara2) "Pulido" else null,
-            if (record.templadoCara2) "Templado" else null
-        ).joinToString(" · ").ifEmpty { "Sin procesos" }
+        previewPlaceholder.visibility = View.GONE
+        chipResumen.visibility = View.VISIBLE
 
         val medidas = listOfNotNull(
             record.alto?.takeIf { it.isNotBlank() },
             record.ancho?.takeIf { it.isNotBlank() }
         ).joinToString(" x ")
 
-        val detalleCara1 = record.cara1?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""
-        val detalleCara2 = record.cara2?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""
+        val resumenItems = listOf(
+            "${record.fecha} · Pedido ${record.numeroPedido}",
+            "Material: ${record.material}",
+            "Medidas: ${if (medidas.isNotBlank()) medidas else "-"}",
+            "Origen: ${record.origenCorte}",
+            "Vidrio 1: " + listOfNotNull(
+                record.pulidoCara1.takeIf { it }?.let { "Pulido" },
+                record.templadoCara1.takeIf { it }?.let { "Templado" },
+                record.cara1?.takeIf { it.isNotBlank() }
+            ).ifEmpty { listOf("Sin procesos") }.joinToString(" · "),
+            "Vidrio 2: " + listOfNotNull(
+                record.pulidoCara2.takeIf { it }?.let { "Pulido" },
+                record.templadoCara2.takeIf { it }?.let { "Templado" },
+                record.cara2?.takeIf { it.isNotBlank() }
+            ).ifEmpty { listOf("Sin procesos") }.joinToString(" · "),
+            "DVH: ${if (record.yaEsDvh) "Sí" else "No"}",
+            "Resp: ${record.responsable} · Sector: ${record.sector}",
+            "Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}"
+        )
 
-        val resumen = """
-                ${record.fecha} · Pedido ${record.numeroPedido}
-                ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})
-                Vidrio 1: $procCara1$detalleCara1 | Vidrio 2: $procCara2$detalleCara2
-                ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
-                Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}
-            """.trimIndent()
+        resumenItems.forEach { text ->
+            val chip = Chip(this).apply {
+                this.text = text
+                isCheckable = false
+                isCloseIconVisible = false
+            }
+            chipResumen.addView(chip)
+        }
+    }
 
-        tvResumen.text = resumen
+    private fun promptSendWithChooser(file: File) {
+        val layout = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(32, 16, 32, 0)
+        }
+
+        val subjectInput = TextInputEditText(this).apply {
+            setText("Reposición interna de cristales")
+            hint = "Asunto"
+        }
+        val toInput = TextInputEditText(this).apply {
+            setText("claudia@fontela.com.ar")
+            hint = "Destinatario"
+        }
+        layout.addView(subjectInput)
+        layout.addView(toInput)
+
+        AlertDialog.Builder(this)
+            .setTitle("Enviar PDF")
+            .setView(layout)
+            .setPositiveButton("Continuar") { _, _ ->
+                shareFile(file, subjectInput.text?.toString().orEmpty(), toInput.text?.toString().orEmpty())
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun shareFile(file: File, subject: String, to: String) {
+        val authority = "${applicationContext.packageName}.fileprovider"
+        val uri: Uri = FileProvider.getUriForFile(this, authority, file)
+
+        val emailIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+            putExtra(Intent.EXTRA_SUBJECT, subject.ifBlank { "Reposición interna de cristales" })
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Se adjunta reposición interna generada desde la tablet."
+            )
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        startActivity(Intent.createChooser(emailIntent, "Enviar o compartir..."))
+    }
+
+    private fun openPdfPreview(file: File) {
+        val intent = Intent(this, PdfPreviewActivity::class.java).apply {
+            putExtra(PdfPreviewActivity.EXTRA_PDF_PATH, file.absolutePath)
+        }
+        startActivity(intent)
     }
 }
