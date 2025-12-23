@@ -21,24 +21,52 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Registros guardados"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/accent_text" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVolver"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tvHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Registros guardados"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_text" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVolver"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Volver" />
+            </LinearLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipFilters"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Volver" />
+                android:paddingTop="8dp"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFiltroTodos"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="Todos" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFiltroDvh"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:checkable="true"
+                    android:text="Solo DVH" />
+            </com.google.android.material.chip.ChipGroup>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -49,5 +77,16 @@
         android:layout_weight="1"
         android:divider="@android:color/transparent"
         android:dividerHeight="12dp" />
+
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aún no hay registros"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textColor="@color/muted_text"
+        android:paddingTop="12dp"
+        android:visibility="gone" />
 
 </LinearLayout>
