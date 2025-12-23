@@ -17,6 +17,18 @@ abstract class ReposicionDatabase : RoomDatabase() {
         fun getInstance(context: Context): ReposicionDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: buildDatabase(context.applicationContext)
+                INSTANCE ?: Room.databaseBuilder(
+                    context.applicationContext,
+                    ReposicionDatabase::class.java,
+                    "reposicion.db"
+                )
+                    // En tablets estaba instalada la versión anterior basada en SQLiteOpenHelper
+                    // (misma base de datos "reposicion.db" pero con otro esquema). Room fallaba
+                    // al validar la integridad y la app no iniciaba. Preferimos recrear la base
+                    // de datos si el esquema no coincide, para que la app vuelva a abrir.
+                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigrationOnDowngrade()
+                    .build()
                     .also { INSTANCE = it }
             }
         }
