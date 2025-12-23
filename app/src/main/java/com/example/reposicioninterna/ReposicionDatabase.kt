@@ -2,9 +2,11 @@ package com.example.reposicioninterna
 
 import android.content.Context
 import android.database.sqlite.SQLiteException
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import java.util.Locale
 
 @Database(entities = [ReposicionEntity::class], version = 1, exportSchema = true)
 abstract class ReposicionDatabase : RoomDatabase() {
@@ -17,36 +19,39 @@ abstract class ReposicionDatabase : RoomDatabase() {
         fun getInstance(context: Context): ReposicionDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: buildDatabase(context.applicationContext)
-                INSTANCE ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    ReposicionDatabase::class.java,
-                    "reposicion.db"
-                )
-                    // En tablets estaba instalada la versión anterior basada en SQLiteOpenHelper
-                    // (misma base de datos "reposicion.db" pero con otro esquema). Room fallaba
-                    // al validar la integridad y la app no iniciaba. Preferimos recrear la base
-                    // de datos si el esquema no coincide, para que la app vuelva a abrir.
-                    .fallbackToDestructiveMigration()
-                    .fallbackToDestructiveMigrationOnDowngrade()
-                    .build()
                     .also { INSTANCE = it }
             }
         }
 
         private fun buildDatabase(context: Context): ReposicionDatabase {
             return try {
-                databaseBuilder(context)
-            } catch (error: IllegalStateException) {
+                createAndValidateDatabase(context)
+            } catch (error: Exception) {
                 if (shouldResetDatabase(error)) {
+                    Log.w(
+                        "ReposicionDatabase",
+                        "Se detectó base de datos incompatible/corrupta, recreando",
+                        error
+                    )
                     context.deleteDatabase("reposicion.db")
-                    databaseBuilder(context)
+                    createAndValidateDatabase(context)
                 } else {
                     throw error
                 }
-            } catch (error: SQLiteException) {
-                context.deleteDatabase("reposicion.db")
-                databaseBuilder(context)
             }
+        }
+
+        private fun createAndValidateDatabase(context: Context): ReposicionDatabase {
+            val database = databaseBuilder(context)
+            try {
+                // Abrimos la base apenas se crea para detectar problemas en dispositivos con
+                // archivos heredados de SQLiteOpenHelper antes de que el DAO la use.
+                database.openHelper.writableDatabase
+            } catch (error: Exception) {
+                database.close()
+                throw error
+            }
+            return database
         }
 
         private fun databaseBuilder(context: Context): ReposicionDatabase {
@@ -64,11 +69,18 @@ abstract class ReposicionDatabase : RoomDatabase() {
                 .build()
         }
 
-        private fun shouldResetDatabase(error: IllegalStateException): Boolean {
-            val message = error.message ?: return false
-            return message.contains("cannot verify the data integrity", ignoreCase = true) ||
-                message.contains("file is not a database", ignoreCase = true) ||
-                message.contains("room cannot verify", ignoreCase = true)
+        private fun shouldResetDatabase(error: Exception): Boolean {
+            if (error is SQLiteException) return true
+
+            val message = error.message?.lowercase(Locale.getDefault()) ?: return false
+            return message.contains("cannot verify the data integrity") ||
+                message.contains("file is not a database") ||
+                message.contains("room cannot verify") ||
+                message.contains("no such table") ||
+                message.contains("expected") && message.contains("found") ||
+                message.contains("has a schema mismatch") ||
+                message.contains("mismatched columns") ||
+                message.contains("has no column named")
         }
     }
 }
