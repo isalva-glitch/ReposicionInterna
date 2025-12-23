@@ -36,6 +36,12 @@ class RecordsActivity : AppCompatActivity() {
             ReposicionRepository.getInstance(this)
         } catch (error: Exception) {
             handleRepositoryError()
+            Toast.makeText(
+                this,
+                "No se pudo abrir la base de datos. Volvé a intentar más tarde.",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
             null
         }
 
