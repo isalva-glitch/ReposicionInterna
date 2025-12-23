@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp"
+    android:fillViewport="true"
     android:background="#E0FFF5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
 
         <!-- CABECERA: Título + Subtítulo + Salir -->
         <LinearLayout
@@ -164,7 +169,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Material con el check DVH en la misma línea -->
+                <!-- Material + DVH -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -262,7 +267,7 @@
                     android:textStyle="bold"
                     android:textSize="18sp" />
 
-                <!-- Vidrios y procesos en dos columnas para reducir el alto -->
+                <!-- Vidrios y procesos en dos columnas -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -401,7 +406,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Vista previa del PDF / email -->
+        <!-- Vista previa -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -456,3 +461,5 @@
         </LinearLayout>
 
     </LinearLayout>
+</ScrollView>
+
