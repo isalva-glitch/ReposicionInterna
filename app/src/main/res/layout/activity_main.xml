@@ -87,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:text="Datos generales"
                     android:textStyle="bold"
-                    android:textSize="20sp" />
+                    android:textSize="22sp" />
 
                 <!-- Fecha y número de pedido en la misma fila -->
                 <LinearLayout
@@ -116,6 +116,7 @@
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
                         android:hint="N° de pedido"
+                        android:textSize="18sp"
                         android:inputType="number"
                         android:background="@android:color/white"
                         android:paddingHorizontal="8dp" />
@@ -139,6 +140,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Responsable"
+                            android:textSize="18sp"
                             android:textStyle="bold" />
 
                         <Spinner
@@ -159,6 +161,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sector"
+                            android:textSize="18sp"
                             android:textStyle="bold" />
 
                         <Spinner
@@ -187,6 +190,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Material"
+                            android:textSize="18sp"
                             android:textStyle="bold" />
 
                         <Spinner
@@ -201,7 +205,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="Ya es DVH" />
+                        android:text="Ya es DVH"
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <!-- Dimensiones -->
@@ -363,29 +368,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Origen del corte"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:paddingTop="12dp" />
 
                 <RadioGroup
                     android:id="@+id/rgOrigenCorte"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <RadioButton
                         android:id="@+id/rbFloat"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="Cortar de Float"
-                        android:textSize="16sp" />
+                        android:textSize="18sp" />
 
                     <RadioButton
                         android:id="@+id/rbLaminado"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:checked="true"
                         android:text="Cortar de Laminado"
-                        android:textSize="16sp" />
+                        android:textSize="18sp" />
                 </RadioGroup>
 
                 <!-- Motivo -->
