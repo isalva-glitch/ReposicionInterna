@@ -55,6 +55,8 @@ abstract class ReposicionDatabase : RoomDatabase() {
                     null,
                     SQLiteDatabase.OPEN_READONLY
                 ).use { db ->
+                    // Verificamos que exista la tabla y que las columnas coincidan con el
+                    // esquema actual. Si falla, la base es heredada y se recrea.
                     val tableInfo = db.rawQuery("PRAGMA table_info(`reposicion`)", null)
                     val columnNames = mutableSetOf<String>()
                     tableInfo.use { cursor ->
@@ -109,6 +111,9 @@ abstract class ReposicionDatabase : RoomDatabase() {
             val dbDir = context.getDatabasePath("reposicion.db").parentFile ?: return
             listOf("reposicion.db-shm", "reposicion.db-wal").forEach { suffix ->
                 val file = dbDir.resolve(suffix)
+                if (file.exists()) {
+                    file.delete()
+                }
                 if (file.exists()) file.delete()
             }
         }
@@ -116,6 +121,8 @@ abstract class ReposicionDatabase : RoomDatabase() {
         private fun createAndValidateDatabase(context: Context): ReposicionDatabase {
             val database = databaseBuilder(context)
             try {
+                // Abrimos la base apenas se crea para detectar problemas en dispositivos con
+                // archivos heredados de SQLiteOpenHelper antes de que el DAO la use.
                 // Fuerza apertura temprana para detectar DB heredada/corrupta antes de usar DAO.
                 database.openHelper.writableDatabase
             } catch (error: Exception) {
@@ -131,6 +138,10 @@ abstract class ReposicionDatabase : RoomDatabase() {
                 ReposicionDatabase::class.java,
                 "reposicion.db"
             )
+                // En tablets estaba instalada la versión anterior basada en SQLiteOpenHelper
+                // (misma base de datos "reposicion.db" pero con otro esquema). Room fallaba
+                // al validar la integridad y la app no iniciaba. Preferimos recrear la base
+                // de datos si el esquema no coincide, para que la app vuelva a abrir.
                 .fallbackToDestructiveMigration()
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .build()
@@ -141,6 +152,13 @@ abstract class ReposicionDatabase : RoomDatabase() {
 
             val message = error.message?.lowercase(Locale.getDefault()) ?: return false
             return message.contains("cannot verify the data integrity") ||
+                message.contains("file is not a database") ||
+                message.contains("room cannot verify") ||
+                message.contains("no such table") ||
+                message.contains("expected") && message.contains("found") ||
+                message.contains("has a schema mismatch") ||
+                message.contains("mismatched columns") ||
+                message.contains("has no column named")
                     message.contains("file is not a database") ||
                     message.contains("room cannot verify") ||
                     message.contains("no such table") ||
