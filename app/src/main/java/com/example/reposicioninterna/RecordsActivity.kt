@@ -35,6 +35,7 @@ class RecordsActivity : AppCompatActivity() {
         repository = try {
             ReposicionRepository.getInstance(this)
         } catch (error: Exception) {
+            handleRepositoryError()
             Toast.makeText(
                 this,
                 "No se pudo abrir la base de datos. Volvé a intentar más tarde.",
@@ -66,6 +67,19 @@ class RecordsActivity : AppCompatActivity() {
 
             tvEmptyState.visibility = if (records.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         }
+    }
+
+    private fun handleRepositoryError() {
+        Toast.makeText(
+            this,
+            "No se pudo abrir la base de datos. Volvé a intentar más tarde.",
+            Toast.LENGTH_LONG
+        ).show()
+        tvHeader.text = "Registros guardados (0)"
+        tvEmptyState.text = "No se pudo cargar la base de datos"
+        tvEmptyState.visibility = android.view.View.VISIBLE
+        chipFilters.isEnabled = false
+        listView.isEnabled = false
     }
 
     private fun showDetalle(record: ReposicionRecord) {

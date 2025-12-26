@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chipResumen: ChipGroup
 
     private var repository: ReposicionRepository? = null
+    private var repositoryAvailable: Boolean = false
 
     private val materialList = mutableListOf(
         "Float 4mm",
@@ -100,6 +101,8 @@ class MainActivity : AppCompatActivity() {
         loadMastersFromCsv()
         setupDropdowns()
         renderPreview(null)
+        repositoryAvailable = ensureRepository() != null
+        updateRepositoryAvailability()
 
         btnPreviewPdf.setOnClickListener { lifecycleScope.launch { onPreviewPdf() } }
         btnGuardarEnviar.setOnClickListener { lifecycleScope.launch { onGuardarYEnviar() } }
@@ -510,6 +513,14 @@ class MainActivity : AppCompatActivity() {
         if (repository != null) return repository
 
         return try {
+            ReposicionRepository.getInstance(this).also {
+                repository = it
+                repositoryAvailable = true
+                updateRepositoryAvailability()
+            }
+        } catch (error: Exception) {
+            repositoryAvailable = false
+            updateRepositoryAvailability()
             ReposicionRepository.getInstance(this).also { repository = it }
         } catch (error: Exception) {
             Toast.makeText(
@@ -519,5 +530,12 @@ class MainActivity : AppCompatActivity() {
             ).show()
             null
         }
+    }
+
+    private fun updateRepositoryAvailability() {
+        val canUseDatabase = repositoryAvailable
+        btnGuardarEnviar.isEnabled = canUseDatabase
+        btnGuardarEnviar.alpha = if (canUseDatabase) 1f else 0.6f
+        topAppBar.menu.findItem(R.id.action_history)?.isEnabled = canUseDatabase
     }
 }
