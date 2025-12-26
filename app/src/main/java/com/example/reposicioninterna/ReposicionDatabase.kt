@@ -155,17 +155,10 @@ abstract class ReposicionDatabase : RoomDatabase() {
                 message.contains("file is not a database") ||
                 message.contains("room cannot verify") ||
                 message.contains("no such table") ||
-                message.contains("expected") && message.contains("found") ||
+                (message.contains("expected") && message.contains("found")) ||
                 message.contains("has a schema mismatch") ||
                 message.contains("mismatched columns") ||
                 message.contains("has no column named")
-                    message.contains("file is not a database") ||
-                    message.contains("room cannot verify") ||
-                    message.contains("no such table") ||
-                    (message.contains("expected") && message.contains("found")) ||
-                    message.contains("has a schema mismatch") ||
-                    message.contains("mismatched columns") ||
-                    message.contains("has no column named")
         }
     }
 }
