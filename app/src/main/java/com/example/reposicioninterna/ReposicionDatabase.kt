@@ -114,6 +114,7 @@ abstract class ReposicionDatabase : RoomDatabase() {
                 if (file.exists()) {
                     file.delete()
                 }
+                if (file.exists()) file.delete()
             }
         }
 
@@ -122,6 +123,7 @@ abstract class ReposicionDatabase : RoomDatabase() {
             try {
                 // Abrimos la base apenas se crea para detectar problemas en dispositivos con
                 // archivos heredados de SQLiteOpenHelper antes de que el DAO la use.
+                // Fuerza apertura temprana para detectar DB heredada/corrupta antes de usar DAO.
                 database.openHelper.writableDatabase
             } catch (error: Exception) {
                 database.close()
@@ -157,6 +159,13 @@ abstract class ReposicionDatabase : RoomDatabase() {
                 message.contains("has a schema mismatch") ||
                 message.contains("mismatched columns") ||
                 message.contains("has no column named")
+                    message.contains("file is not a database") ||
+                    message.contains("room cannot verify") ||
+                    message.contains("no such table") ||
+                    (message.contains("expected") && message.contains("found")) ||
+                    message.contains("has a schema mismatch") ||
+                    message.contains("mismatched columns") ||
+                    message.contains("has no column named")
         }
     }
 }

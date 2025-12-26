@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var previewPlaceholder: View
     private lateinit var chipResumen: ChipGroup
 
-    private lateinit var repository: ReposicionRepository
+    private var repository: ReposicionRepository? = null
 
     private val materialList = mutableListOf(
         "Float 4mm",
@@ -94,7 +94,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        repository = ReposicionRepository.getInstance(this)
         bindViews()
         initFecha()
         initDatePicker()
@@ -115,7 +114,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.action_history -> {
-                    startActivity(Intent(this, RecordsActivity::class.java))
+                    if (ensureRepository() != null) {
+                        startActivity(Intent(this, RecordsActivity::class.java))
+                    }
                     true
                 }
 
@@ -254,15 +255,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun onGuardarYEnviar() {
+        val repo = ensureRepository() ?: return
         val record = gatherRecord() ?: return
 
-        if (repository.isDuplicated(record.fecha, record.numeroPedido)) {
+        if (repo.isDuplicated(record.fecha, record.numeroPedido)) {
             tilNumeroPedido.error = "Ya existe un pedido con esa fecha y número"
             return
         }
 
         val pdfFile = PdfGenerator.generate(this, record)
-        val savedId = repository.save(record.copy(pdfPath = pdfFile?.absolutePath))
+        val savedId = repo.save(record.copy(pdfPath = pdfFile?.absolutePath))
         if (savedId > 0) {
             Toast.makeText(this, "Registro #$savedId guardado", Toast.LENGTH_SHORT).show()
         } else {
@@ -502,5 +504,20 @@ class MainActivity : AppCompatActivity() {
             putExtra(PdfPreviewActivity.EXTRA_PDF_PATH, file.absolutePath)
         }
         startActivity(intent)
+    }
+
+    private fun ensureRepository(): ReposicionRepository? {
+        if (repository != null) return repository
+
+        return try {
+            ReposicionRepository.getInstance(this).also { repository = it }
+        } catch (error: Exception) {
+            Toast.makeText(
+                this,
+                "No se pudo abrir la base de datos. Reintentá o revisá el almacenamiento.",
+                Toast.LENGTH_LONG
+            ).show()
+            null
+        }
     }
 }

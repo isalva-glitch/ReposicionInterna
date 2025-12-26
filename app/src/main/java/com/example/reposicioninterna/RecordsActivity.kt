@@ -21,7 +21,7 @@ class RecordsActivity : AppCompatActivity() {
     private lateinit var chipFilters: ChipGroup
     private lateinit var tvEmptyState: TextView
     private lateinit var tvHeader: TextView
-    private lateinit var repository: ReposicionRepository
+    private var repository: ReposicionRepository? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +32,17 @@ class RecordsActivity : AppCompatActivity() {
         chipFilters = findViewById(R.id.chipFilters)
         tvEmptyState = findViewById(R.id.tvEmptyState)
         tvHeader = findViewById(R.id.tvHeader)
-        repository = ReposicionRepository.getInstance(this)
+        repository = try {
+            ReposicionRepository.getInstance(this)
+        } catch (error: Exception) {
+            Toast.makeText(
+                this,
+                "No se pudo abrir la base de datos. Volvé a intentar más tarde.",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+            null
+        }
 
         btnVolver.setOnClickListener { finish() }
         chipFilters.setOnCheckedChangeListener { _, _ -> loadRecords() }
@@ -42,8 +52,9 @@ class RecordsActivity : AppCompatActivity() {
 
     private fun loadRecords() {
         lifecycleScope.launch {
+            val repo = repository ?: return@launch
             val showOnlyDvh = chipFilters.checkedChipId == R.id.chipFiltroDvh
-            val records = if (showOnlyDvh) repository.getAllDvh() else repository.getAll()
+            val records = if (showOnlyDvh) repo.getAllDvh() else repo.getAll()
             tvHeader.text = "Registros guardados (${records.size})"
 
             listView.adapter = RecordsAdapter(
