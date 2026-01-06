@@ -580,8 +580,7 @@ class MainActivity : AppCompatActivity() {
         } catch (error: Exception) {
             repositoryAvailable = false
             updateRepositoryAvailability()
-            ReposicionRepository.getInstance(this).also { repository = it }
-        } catch (error: Exception) {
+            StartupLog.log(this, "No se pudo abrir la base de datos", error)
             Toast.makeText(
                 this,
                 "No se pudo abrir la base de datos. Reintentá o revisá el almacenamiento.",
