@@ -29,6 +29,7 @@ object StartupLog {
                     return
                 }
                 val file = File(directory, FILE_NAME)
+                file.appendText(entry)
                 java.io.FileOutputStream(file, true).use { output ->
                 context.openFileOutput(FILE_NAME, Context.MODE_APPEND).use { output ->
                     output.write(entry.toByteArray())
