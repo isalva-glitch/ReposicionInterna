@@ -16,30 +16,32 @@ object StartupLog {
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
     @Synchronized
     fun log(context: Context, message: String, throwable: Throwable? = null) {
-        val entry = buildString {
-            append(dateFormat.format(Date()))
-            append(" - ")
-            append(message)
-            append('\n')
-            if (throwable != null) {
-                val writer = StringWriter()
-                throwable.printStackTrace(PrintWriter(writer))
-                append(writer.toString())
-                append('\n')
-            }
-        }
         runCatching {
+            val entry = buildString {
+                append(dateFormat.format(Date()))
+                append(" - ")
+                append(message)
+                append('\n')
+                if (throwable != null) {
+                    val writer = StringWriter()
+                    throwable.printStackTrace(PrintWriter(writer))
+                    append(writer.toString())
+                    append('\n')
+                }
+            }
+
             val appContext = context.applicationContext
-            val directory =
-                resolveDirectory(appContext.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS))
-                    ?: resolveDirectory(appContext.filesDir)
+            // Priorizamos almacenamiento interno para evitar bloqueos o problemas de permisos
+            val directory = resolveDirectory(appContext.filesDir)
+                ?: resolveDirectory(appContext.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS))
+
             if (directory == null) {
                 Log.e(TAG, "No se pudo acceder a ningún directorio para el log.")
                 return
             }
             File(directory, FILE_NAME).appendText(entry)
-        }.onFailure { throwable ->
-            Log.e(TAG, "No se pudo escribir el registro de inicio.", throwable)
+        }.onFailure { t ->
+            Log.e(TAG, "No se pudo escribir el registro de inicio.", t)
         }
     }
 
