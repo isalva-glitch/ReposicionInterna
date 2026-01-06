@@ -1,7 +1,9 @@
 package com.example.reposicioninterna
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -17,6 +19,17 @@ object StartupLog {
         val entry = "${dateFormat.format(Date())} - $message\n"
         try {
             synchronized(lock) {
+                val directory = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+                if (directory == null) {
+                    Log.e(TAG, "No se pudo acceder al directorio de documentos.")
+                    return
+                }
+                if (!directory.exists() && !directory.mkdirs()) {
+                    Log.e(TAG, "No se pudo crear el directorio de documentos.")
+                    return
+                }
+                val file = File(directory, FILE_NAME)
+                java.io.FileOutputStream(file, true).use { output ->
                 context.openFileOutput(FILE_NAME, Context.MODE_APPEND).use { output ->
                     output.write(entry.toByteArray())
                 }
