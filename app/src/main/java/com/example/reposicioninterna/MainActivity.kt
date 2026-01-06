@@ -97,17 +97,31 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StartupLog.log(this, "MainActivity onCreate: inicio")
         setContentView(R.layout.activity_main)
 
+        StartupLog.log(this, "MainActivity onCreate: setContentView listo")
         bindViews()
+        StartupLog.log(this, "MainActivity onCreate: bindViews listo")
         initFecha()
+        StartupLog.log(this, "MainActivity onCreate: initFecha listo")
         initDatePicker()
+        StartupLog.log(this, "MainActivity onCreate: initDatePicker listo")
         loadMastersFromCsv()
+        StartupLog.log(this, "MainActivity onCreate: loadMastersFromCsv listo")
         setupDropdowns()
+        StartupLog.log(this, "MainActivity onCreate: setupDropdowns listo")
         renderPreview(null)
+        StartupLog.log(this, "MainActivity onCreate: renderPreview listo")
         repositoryAvailable = ensureRepository() != null
+        StartupLog.log(
+            this,
+            "MainActivity onCreate: ensureRepository terminado (disponible=$repositoryAvailable)"
+        )
         updateRepositoryAvailability()
+        StartupLog.log(this, "MainActivity onCreate: updateRepositoryAvailability listo")
         requestPinnedShortcutIfNeeded()
+        StartupLog.log(this, "MainActivity onCreate: requestPinnedShortcutIfNeeded listo")
 
         btnPreviewPdf.setOnClickListener { lifecycleScope.launch { onPreviewPdf() } }
         btnGuardarEnviar.setOnClickListener { lifecycleScope.launch { onGuardarYEnviar() } }
