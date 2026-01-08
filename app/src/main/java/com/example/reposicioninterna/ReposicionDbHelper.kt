@@ -20,6 +20,8 @@ class ReposicionDbHelper(context: Context) :
                 $COL_MATERIAL TEXT,
                 ${'$'}COL_ALTO TEXT,
                 ${'$'}COL_ANCHO TEXT,
+                $COL_CARA1 TEXT,
+                $COL_CARA2 TEXT,
                 $COL_MOTIVO TEXT,
                 $COL_PULIDO_C1 INTEGER,
                 $COL_TEMPLADO_C1 INTEGER,
@@ -27,6 +29,7 @@ class ReposicionDbHelper(context: Context) :
                 $COL_TEMPLADO_C2 INTEGER,
                 $COL_DVH INTEGER,
                 $COL_ORIGEN TEXT,
+                $COL_PDF_PATH TEXT,
                 $COL_TIMESTAMP INTEGER
             );
         """.trimIndent()
@@ -49,6 +52,8 @@ class ReposicionDbHelper(context: Context) :
             put(COL_MATERIAL, record.material)
             put(COL_ALTO, record.alto)
             put(COL_ANCHO, record.ancho)
+            put(COL_CARA1, record.cara1)
+            put(COL_CARA2, record.cara2)
             put(COL_MOTIVO, record.motivo)
 
             put(COL_PULIDO_C1, if (record.pulidoCara1) 1 else 0)
@@ -58,7 +63,8 @@ class ReposicionDbHelper(context: Context) :
 
             put(COL_DVH, if (record.yaEsDvh) 1 else 0)
             put(COL_ORIGEN, record.origenCorte)
-            put(COL_TIMESTAMP, System.currentTimeMillis())
+            put(COL_PDF_PATH, record.pdfPath)
+            put(COL_TIMESTAMP, record.timestamp)
         }
         return db.insert(TABLE_REPOSICION, null, values)
     }
@@ -95,6 +101,8 @@ class ReposicionDbHelper(context: Context) :
                 val material = it.getString(it.getColumnIndexOrThrow(COL_MATERIAL))
                 val alto = it.getString(it.getColumnIndexOrThrow(COL_ALTO))
                 val ancho = it.getString(it.getColumnIndexOrThrow(COL_ANCHO))
+                val cara1 = it.getString(it.getColumnIndexOrThrow(COL_CARA1))
+                val cara2 = it.getString(it.getColumnIndexOrThrow(COL_CARA2))
                 val motivo = it.getString(it.getColumnIndexOrThrow(COL_MOTIVO))
 
                 val pulidoC1 = it.getInt(it.getColumnIndexOrThrow(COL_PULIDO_C1)) == 1
@@ -104,9 +112,12 @@ class ReposicionDbHelper(context: Context) :
 
                 val dvh = it.getInt(it.getColumnIndexOrThrow(COL_DVH)) == 1
                 val origen = it.getString(it.getColumnIndexOrThrow(COL_ORIGEN))
+                val pdfPath = it.getString(it.getColumnIndexOrThrow(COL_PDF_PATH))
+                val timestamp = it.getLong(it.getColumnIndexOrThrow(COL_TIMESTAMP))
 
                 result.add(
                     ReposicionRecord(
+                        id = it.getLong(it.getColumnIndexOrThrow(COL_ID)),
                         fecha = fecha ?: "",
                         numeroPedido = numPedido ?: "",
                         responsable = responsable,
@@ -114,13 +125,17 @@ class ReposicionDbHelper(context: Context) :
                         material = material,
                         alto = alto,
                         ancho = ancho,
+                        cara1 = cara1,
+                        cara2 = cara2,
                         motivo = motivo,
                         pulidoCara1 = pulidoC1,
                         templadoCara1 = templadoC1,
                         pulidoCara2 = pulidoC2,
                         templadoCara2 = templadoC2,
                         yaEsDvh = dvh,
-                        origenCorte = origen ?: ""
+                        origenCorte = origen ?: "",
+                        pdfPath = pdfPath,
+                        timestamp = timestamp
                     )
                 )
             }
@@ -133,7 +148,7 @@ class ReposicionDbHelper(context: Context) :
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
         // SUBIR VERSION PARA FORZAR RECREACIÓN
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"
@@ -143,6 +158,8 @@ class ReposicionDbHelper(context: Context) :
         const val COL_MATERIAL = "material"
         const val COL_ALTO = "alto"
         const val COL_ANCHO = "ancho"
+        const val COL_CARA1 = "cara1"
+        const val COL_CARA2 = "cara2"
         const val COL_MOTIVO = "motivo"
 
         const val COL_PULIDO_C1 = "pulido_cara1"
@@ -152,6 +169,7 @@ class ReposicionDbHelper(context: Context) :
 
         const val COL_DVH = "dvh"
         const val COL_ORIGEN = "origen_corte"
+        const val COL_PDF_PATH = "pdf_path"
         const val COL_TIMESTAMP = "ts"
     }
 }
