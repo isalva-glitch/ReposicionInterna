@@ -2,14 +2,19 @@ package com.example.reposicioninterna
 
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.graphics.drawable.Icon
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.content.edit
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -124,6 +129,8 @@ class MainActivity : AppCompatActivity() {
         btnSalir.setOnClickListener {
             finishAffinity()
         }
+
+        requestPinnedShortcutIfNeeded()
     }
 
     // ---------- INICIALIZACIÓN FECHA ----------
@@ -551,5 +558,47 @@ class MainActivity : AppCompatActivity() {
             """.trimIndent()
 
         tvResumen.text = resumen
+    }
+
+    private fun requestPinnedShortcutIfNeeded() {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_PINNED_SHORTCUT_REQUESTED, false)) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val shortcutManager = getSystemService(ShortcutManager::class.java)
+            if (shortcutManager?.isRequestPinShortcutSupported == true) {
+                val shortcut = ShortcutInfo.Builder(this, "reposicion_home")
+                    .setShortLabel(getString(R.string.shortcut_label))
+                    .setLongLabel(getString(R.string.shortcut_label))
+                    .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
+                    .setIntent(Intent(this, MainActivity::class.java).setAction(Intent.ACTION_VIEW))
+                    .build()
+                shortcutManager.requestPinShortcut(shortcut, null)
+                prefs.edit { putBoolean(KEY_PINNED_SHORTCUT_REQUESTED, true) }
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            val shortcutIntent = Intent(this, MainActivity::class.java)
+                .setAction(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+
+            @Suppress("DEPRECATION")
+            val installer = Intent("com.android.launcher.action.INSTALL_SHORTCUT").apply {
+                putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent)
+                putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.shortcut_label))
+                putExtra("duplicate", false)
+                putExtra(
+                    Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                    Intent.ShortcutIconResource.fromContext(this@MainActivity, R.mipmap.ic_launcher)
+                )
+            }
+            sendBroadcast(installer)
+            prefs.edit { putBoolean(KEY_PINNED_SHORTCUT_REQUESTED, true) }
+        }
+    }
+
+    companion object {
+        private const val PREFS_NAME = "reposicion_prefs"
+        private const val KEY_PINNED_SHORTCUT_REQUESTED = "pinned_shortcut_requested"
     }
 }

@@ -115,6 +115,7 @@ class PdfPreviewActivity : AppCompatActivity() {
         try {
             startActivity(viewIntent)
         } catch (ex: Exception) {
+            ex.printStackTrace()
             Toast.makeText(this, R.string.preview_no_viewer, Toast.LENGTH_LONG).show()
         }
     }
