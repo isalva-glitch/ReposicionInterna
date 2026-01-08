@@ -16,7 +16,7 @@ La app carga los maestros desde `app/src/main/assets/maestros_reposicion.csv` pa
 
 - **Carga de pedidos** con controles para cara 1 y cara 2 (pulido/templado), DVH, motivo y origen de corte.
 - **Vista previa y generación de PDF** antes de compartirlo por correo o apps instaladas.
-- **Persistencia local** con Room (`ReposicionDatabase` + DAO) para dejar trazabilidad de cada pedido enviado sin perder datos en upgrades.
+- **Persistencia local** en SQLite mediante `ReposicionDbHelper` para dejar trazabilidad de cada pedido enviado.
 - **Historial de registros** accesible desde el botón *Ver registros*, que lista cada pedido guardado con su material, procesos y responsable.
 
 ### Pantalla de historial
