@@ -30,8 +30,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spMaterial: Spinner
     private lateinit var etAlto: EditText
     private lateinit var etAncho: EditText
-    private lateinit var etCara1: EditText
-    private lateinit var etCara2: EditText
     private lateinit var etMotivo: EditText
     private lateinit var cbPulido: CheckBox
     private lateinit var cbTemplado: CheckBox
@@ -50,25 +48,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var dbHelper: ReposicionDbHelper
 
-    // Listas (valores por defecto + se completan con CSV si existe)
-    private val materialList = mutableListOf(
-        "Float 4mm",
-        "Float 6mm",
-        "Laminado 3+3",
-        "Laminado 4+4"
-    )
-
-    private val responsableList = mutableListOf(
-        "Juan",
-        "Claudia",
-        "Carlos"
-    )
-
-    private val sectorList = mutableListOf(
-        "Corte",
-        "Armado",
-        "Templado"
-    )
+    // Listas (se completan con CSV al inicio)
+    private val materialList = mutableListOf<String>()
+    private val responsableList = mutableListOf<String>()
+    private val sectorList = mutableListOf<String>()
 
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -87,8 +70,6 @@ class MainActivity : AppCompatActivity() {
         spMaterial = findViewById(R.id.spMaterial)
         etAlto = findViewById(R.id.etAlto)
         etAncho = findViewById(R.id.etAncho)
-        etCara1 = findViewById(R.id.etCara1)
-        etCara2 = findViewById(R.id.etCara2)
         etMotivo = findViewById(R.id.etMotivo)
         cbPulido = findViewById(R.id.cbPulido)
         cbTemplado = findViewById(R.id.cbTemplado)
@@ -173,9 +154,9 @@ class MainActivity : AppCompatActivity() {
      */
     private fun loadMastersFromCsv() {
         try {
-            val materials = LinkedHashSet<String>(materialList)
-            val responsables = LinkedHashSet<String>(responsableList)
-            val sectores = LinkedHashSet<String>(sectorList)
+            val materials = LinkedHashSet<String>()
+            val responsables = LinkedHashSet<String>()
+            val sectores = LinkedHashSet<String>()
 
             assets.open("maestros_reposicion.csv").bufferedReader().useLines { lines ->
                 lines.forEachIndexed { index, rawLine ->
@@ -214,7 +195,7 @@ class MainActivity : AppCompatActivity() {
             t.printStackTrace()
             Toast.makeText(
                 this,
-                "No se pudo leer maestros_reposicion.csv, se usan valores fijos.",
+                "No se pudo leer maestros_reposicion.csv",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -257,6 +238,7 @@ class MainActivity : AppCompatActivity() {
         val savedId = dbHelper.insertRecord(record)
         if (savedId > 0) {
             Toast.makeText(this, "Registro #$savedId guardado", Toast.LENGTH_SHORT).show()
+            performDatabaseBackup()
         } else {
             Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
             return
@@ -311,8 +293,6 @@ class MainActivity : AppCompatActivity() {
         val motivo = etMotivo.text.toString().trim()
         val alto = etAlto.text.toString().trim()
         val ancho = etAncho.text.toString().trim()
-        val cara1 = etCara1.text.toString().trim()
-        val cara2 = etCara2.text.toString().trim()
         if (responsable.isNullOrBlank()) {
             Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
             return null
@@ -348,8 +328,6 @@ class MainActivity : AppCompatActivity() {
             material = material,
             alto = alto,
             ancho = ancho,
-            cara1 = cara1,
-            cara2 = cara2,
             motivo = motivo,
             pulidoCara1 = pulidoCara1,
             templadoCara1 = templadoCara1,
@@ -368,11 +346,9 @@ class MainActivity : AppCompatActivity() {
     private fun clearForm() {
         initFecha()
         etNumeroPedido.text.clear()
-        etMotivo.text.clear()
         etAlto.text.clear()
         etAncho.text.clear()
-        etCara1.text.clear()
-        etCara2.text.clear()
+        etMotivo.text.clear()
 
         if (spResponsable.adapter != null && spResponsable.adapter.count > 0) {
             spResponsable.setSelection(0)
@@ -390,7 +366,7 @@ class MainActivity : AppCompatActivity() {
         cbTempladoCara2.isChecked = false
         cbDvh.isChecked = false
 
-        rbLaminado.isChecked = true
+        rbFloat.isChecked = true
 
 
         tvResumen.text = getString(R.string.preview_hint)
@@ -452,14 +428,6 @@ class MainActivity : AppCompatActivity() {
                 40f, y, paint
             ); y += 24f
 
-            if (!record.cara1.isNullOrBlank()) {
-                canvas.drawText("Notas Vidrio 1:", 40f, y, paint); y += 16f
-                canvas.drawText("  ${record.cara1}", 40f, y, paint); y += 12f
-            }
-            if (!record.cara2.isNullOrBlank()) {
-                canvas.drawText("Notas Vidrio 2:", 40f, y, paint); y += 16f
-                canvas.drawText("  ${record.cara2}", 40f, y, paint); y += 12f
-            }
 
             // Motivo
             canvas.drawText("Motivo:", 40f, y, paint); y += 16f
@@ -499,6 +467,7 @@ class MainActivity : AppCompatActivity() {
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
             type = mimeType
             putExtra(Intent.EXTRA_EMAIL, arrayOf("claudia@fontela.com.ar"))
+            putExtra(Intent.EXTRA_CC, arrayOf("mfontela@fontela.com.ar", "isalva@fontela.com.ar"))
             putExtra(Intent.EXTRA_SUBJECT, "Reposición interna de cristales")
             putExtra(
                 Intent.EXTRA_TEXT,
@@ -546,18 +515,41 @@ class MainActivity : AppCompatActivity() {
             record.ancho?.takeIf { it.isNotBlank() }
         ).joinToString(" x ")
 
-        val detalleCara1 = record.cara1?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""
-        val detalleCara2 = record.cara2?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""
-
         val resumen = """
                 ${record.fecha} · Pedido ${record.numeroPedido}
                 ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})
-                Vidrio 1: $procCara1$detalleCara1 | Vidrio 2: $procCara2$detalleCara2
+                Vidrio 1: $procCara1 | Vidrio 2: $procCara2
                 ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
                 Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}
             """.trimIndent()
 
         tvResumen.text = resumen
+    }
+
+    private fun performDatabaseBackup() {
+        try {
+            val dbFile = getDatabasePath("reposicion.db")
+            if (!dbFile.exists()) return
+
+            val backupDir = File(getExternalFilesDir(null), "backups")
+            if (!backupDir.exists()) backupDir.mkdirs()
+
+            val backupFile = File(backupDir, "reposicion_backup.db")
+            
+            dbFile.inputStream().use { input ->
+                backupFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            // También guardamos una copia con fecha para historial de hoy
+            val dateStr = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+            val historyFile = File(backupDir, "reposicion_$dateStr.db")
+            backupFile.copyTo(historyFile, overwrite = true)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Error silencioso en backup para no interrumpir el flujo principal
+        }
     }
 
     private fun requestPinnedShortcutIfNeeded() {

@@ -18,8 +18,8 @@ class ReposicionDbHelper(context: Context) :
                 $COL_RESPONSABLE TEXT,
                 $COL_SECTOR TEXT,
                 $COL_MATERIAL TEXT,
-                ${'$'}COL_ALTO TEXT,
-                ${'$'}COL_ANCHO TEXT,
+                $COL_ALTO TEXT,
+                $COL_ANCHO TEXT,
                 $COL_CARA1 TEXT,
                 $COL_CARA2 TEXT,
                 $COL_MOTIVO TEXT,
@@ -148,7 +148,7 @@ class ReposicionDbHelper(context: Context) :
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
         // SUBIR VERSION PARA FORZAR RECREACIÓN
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"
