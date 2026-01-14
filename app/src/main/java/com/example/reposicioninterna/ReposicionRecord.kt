@@ -6,6 +6,7 @@ data class ReposicionRecord(
     val numeroPedido: String,
     val responsable: String?,
     val sector: String?,
+    val tipologia: String? = null,
     val material: String?,
     val alto: String? = null,
     val ancho: String? = null,

@@ -17,6 +17,7 @@ class ReposicionDbHelper(context: Context) :
                 $COL_NUM_PEDIDO TEXT NOT NULL,
                 $COL_RESPONSABLE TEXT,
                 $COL_SECTOR TEXT,
+                $COL_TIPOLOGIA TEXT,
                 $COL_MATERIAL TEXT,
                 $COL_ALTO TEXT,
                 $COL_ANCHO TEXT,
@@ -49,6 +50,7 @@ class ReposicionDbHelper(context: Context) :
             put(COL_NUM_PEDIDO, record.numeroPedido)
             put(COL_RESPONSABLE, record.responsable)
             put(COL_SECTOR, record.sector)
+            put(COL_TIPOLOGIA, record.tipologia)
             put(COL_MATERIAL, record.material)
             put(COL_ALTO, record.alto)
             put(COL_ANCHO, record.ancho)
@@ -98,6 +100,7 @@ class ReposicionDbHelper(context: Context) :
                 val numPedido = it.getString(it.getColumnIndexOrThrow(COL_NUM_PEDIDO))
                 val responsable = it.getString(it.getColumnIndexOrThrow(COL_RESPONSABLE))
                 val sector = it.getString(it.getColumnIndexOrThrow(COL_SECTOR))
+                val tipologia = it.getString(it.getColumnIndexOrThrow(COL_TIPOLOGIA))
                 val material = it.getString(it.getColumnIndexOrThrow(COL_MATERIAL))
                 val alto = it.getString(it.getColumnIndexOrThrow(COL_ALTO))
                 val ancho = it.getString(it.getColumnIndexOrThrow(COL_ANCHO))
@@ -122,6 +125,7 @@ class ReposicionDbHelper(context: Context) :
                         numeroPedido = numPedido ?: "",
                         responsable = responsable,
                         sector = sector,
+                        tipologia = tipologia,
                         material = material,
                         alto = alto,
                         ancho = ancho,
@@ -148,13 +152,14 @@ class ReposicionDbHelper(context: Context) :
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
         // SUBIR VERSION PARA FORZAR RECREACIÓN
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 6
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"
         const val COL_NUM_PEDIDO = "numero_pedido"
         const val COL_RESPONSABLE = "responsable"
         const val COL_SECTOR = "sector"
+        const val COL_TIPOLOGIA = "tipologia"
         const val COL_MATERIAL = "material"
         const val COL_ALTO = "alto"
         const val COL_ANCHO = "ancho"

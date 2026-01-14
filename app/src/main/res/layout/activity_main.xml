@@ -186,6 +186,48 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Tipología y Botón Agregar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tipología"
+                            android:textStyle="bold"
+                            android:textColor="@color/muted_text" />
+
+                        <Spinner
+                            android:id="@+id/spTipologia"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/input_background" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAgregarItem"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="16dp"
+                        android:text="Agregar"
+                        app:backgroundTint="@color/primary_button"
+                        app:strokeColor="@color/primary_button"
+                        app:strokeWidth="0dp"
+                        app:cornerRadius="10dp" />
+                </LinearLayout>
+
                 <!-- Material con el check DVH en la misma línea -->
                 <LinearLayout
                     android:layout_width="match_parent"

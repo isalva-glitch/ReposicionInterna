@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etNumeroPedido: EditText
     private lateinit var spResponsable: Spinner
     private lateinit var spSector: Spinner
+    private lateinit var spTipologia: Spinner
     private lateinit var spMaterial: Spinner
     private lateinit var etAlto: EditText
     private lateinit var etAncho: EditText
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnNuevoPedido: Button
     private lateinit var btnVerRegistros: Button
     private lateinit var btnSalir: Button
+    private lateinit var btnAgregarItem: Button
     private lateinit var tvResumen: TextView
 
     private lateinit var dbHelper: ReposicionDbHelper
@@ -52,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     private val materialList = mutableListOf<String>()
     private val responsableList = mutableListOf<String>()
     private val sectorList = mutableListOf<String>()
+    private val tipologiaList = mutableListOf<String>()
 
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -67,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         etNumeroPedido = findViewById(R.id.etNumeroPedido)
         spResponsable = findViewById(R.id.spResponsable)
         spSector = findViewById(R.id.spSector)
+        spTipologia = findViewById(R.id.spTipologia)
         spMaterial = findViewById(R.id.spMaterial)
         etAlto = findViewById(R.id.etAlto)
         etAncho = findViewById(R.id.etAncho)
@@ -84,6 +88,7 @@ class MainActivity : AppCompatActivity() {
         btnNuevoPedido = findViewById(R.id.btnNuevoPedido)
         btnVerRegistros = findViewById(R.id.btnVerRegistros)
         btnSalir = findViewById(R.id.btnSalir)
+        btnAgregarItem = findViewById(R.id.btnAgregarItem)
         tvResumen = findViewById(R.id.tvResumen)
 
         initFecha()
@@ -109,6 +114,10 @@ class MainActivity : AppCompatActivity() {
 
         btnSalir.setOnClickListener {
             finishAffinity()
+        }
+
+        btnAgregarItem.setOnClickListener {
+            onAgregarItem()
         }
 
         requestPinnedShortcutIfNeeded()
@@ -157,6 +166,7 @@ class MainActivity : AppCompatActivity() {
             val materials = LinkedHashSet<String>()
             val responsables = LinkedHashSet<String>()
             val sectores = LinkedHashSet<String>()
+            val tipologias = LinkedHashSet<String>()
 
             assets.open("maestros_reposicion.csv").bufferedReader().useLines { lines ->
                 lines.forEachIndexed { index, rawLine ->
@@ -175,10 +185,12 @@ class MainActivity : AppCompatActivity() {
                     val material = parts.getOrNull(0)
                     val responsable = parts.getOrNull(1)
                     val sector = parts.getOrNull(2)
+                    val tipologia = parts.getOrNull(3)
 
                     if (!material.isNullOrEmpty()) materials.add(material)
                     if (!responsable.isNullOrEmpty()) responsables.add(responsable)
                     if (!sector.isNullOrEmpty()) sectores.add(sector)
+                    if (!tipologia.isNullOrEmpty()) tipologias.add(tipologia)
                 }
             }
 
@@ -190,6 +202,9 @@ class MainActivity : AppCompatActivity() {
 
             sectorList.clear()
             sectorList.addAll(sectores)
+
+            tipologiaList.clear()
+            tipologiaList.addAll(tipologias)
 
         } catch (t: Throwable) {
             t.printStackTrace()
@@ -228,6 +243,15 @@ class MainActivity : AppCompatActivity() {
             it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         spSector.adapter = sectorAdapter
+
+        val tipologiaAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            tipologiaList
+        ).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spTipologia.adapter = tipologiaAdapter
     }
 
     // ---------- BOTONES PRINCIPALES ----------
@@ -255,6 +279,22 @@ class MainActivity : AppCompatActivity() {
         clearForm()
         Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT)
             .show()
+    }
+
+    private fun onAgregarItem() {
+        val record = gatherRecord() ?: return
+
+        val savedId = dbHelper.insertRecord(record)
+        if (savedId > 0) {
+            Toast.makeText(this, "Registro #$savedId guardado", Toast.LENGTH_SHORT).show()
+            performDatabaseBackup()
+        } else {
+            Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        clearItemFields()
+        Toast.makeText(this, "Item agregado. Podés sumar otro al mismo pedido.", Toast.LENGTH_SHORT).show()
     }
 
     private fun onPreviewPdf() {
@@ -288,6 +328,7 @@ class MainActivity : AppCompatActivity() {
 
         val responsable = spResponsable.selectedItem?.toString()
         val sector = spSector.selectedItem?.toString()
+        val tipologia = spTipologia.selectedItem?.toString()
         val material = spMaterial.selectedItem?.toString()
 
         val motivo = etMotivo.text.toString().trim()
@@ -325,6 +366,7 @@ class MainActivity : AppCompatActivity() {
             numeroPedido = numeroPedido,
             responsable = responsable,
             sector = sector,
+            tipologia = tipologia,
             material = material,
             alto = alto,
             ancho = ancho,
@@ -359,6 +401,9 @@ class MainActivity : AppCompatActivity() {
         if (spMaterial.adapter != null && spMaterial.adapter.count > 0) {
             spMaterial.setSelection(0)
         }
+        if (spTipologia.adapter != null && spTipologia.adapter.count > 0) {
+            spTipologia.setSelection(0)
+        }
 
         cbPulido.isChecked = false
         cbTemplado.isChecked = false
@@ -370,6 +415,30 @@ class MainActivity : AppCompatActivity() {
 
 
         tvResumen.text = getString(R.string.preview_hint)
+    }
+
+    private fun clearItemFields() {
+        etAlto.text.clear()
+        etAncho.text.clear()
+        etMotivo.text.clear()
+
+        if (spTipologia.adapter != null && spTipologia.adapter.count > 0) {
+            spTipologia.setSelection(0)
+        }
+        if (spMaterial.adapter != null && spMaterial.adapter.count > 0) {
+            spMaterial.setSelection(0)
+        }
+
+        cbPulido.isChecked = false
+        cbTemplado.isChecked = false
+        cbPulidoCara2.isChecked = false
+        cbTempladoCara2.isChecked = false
+        cbDvh.isChecked = false
+
+        rbFloat.isChecked = true
+        
+        // No limpiamos nro pedido, responsable, sector ni fecha
+        tvResumen.text = getString(R.string.preview_hint_item) ?: "Esperando nuevo item..."
     }
 
     // ---------- GENERACIÓN DE PDF ----------
@@ -402,6 +471,7 @@ class MainActivity : AppCompatActivity() {
             canvas.drawText("N° Pedido: ${record.numeroPedido}", 40f, y, paint); y += 18f
             canvas.drawText("Responsable: ${record.responsable ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Sector: ${record.sector ?: ""}", 40f, y, paint); y += 18f
+            canvas.drawText("Tipología: ${record.tipologia ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 18f
             if (!record.alto.isNullOrBlank() || !record.ancho.isNullOrBlank()) {
                 canvas.drawText(
@@ -517,7 +587,7 @@ class MainActivity : AppCompatActivity() {
 
         val resumen = """
                 ${record.fecha} · Pedido ${record.numeroPedido}
-                ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})
+                ${record.tipologia ?: ""} · ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})
                 Vidrio 1: $procCara1 | Vidrio 2: $procCara2
                 ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
                 Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}

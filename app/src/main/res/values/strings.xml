@@ -14,5 +14,6 @@
     <string name="records_recent">Mostrando los últimos %1$d registros</string>
     <string name="records_recent_limit">Mostrando los últimos %1$d registros recientes</string>
     <string name="records_recent_single">Mostrando el último registro</string>
+    <string name="preview_hint_item">Item guardado. Ingresá el próximo.</string>
     <string name="shortcut_label">Reposición interna</string>
 </resources>

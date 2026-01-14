@@ -26,9 +26,10 @@ class RecordsAdapter(
 
         tvPedido.text = "${record?.fecha ?: ""} · Pedido ${record?.numeroPedido ?: ""}"
         tvMaterial.text = listOfNotNull(
+            record?.tipologia,
             record?.material,
             record?.origenCorte,
-            listOfNotNull(record?.alto, record?.ancho).takeIf { !it.isNullOrEmpty() }?.joinToString(" x ")
+            listOfNotNull(record?.alto, record?.ancho).takeIf { !it.filter { v -> !v.isNullOrBlank() }.isNullOrEmpty() }?.joinToString(" x ")
         ).joinToString(" · ")
         val cara1 = listOfNotNull(
             "V1",
