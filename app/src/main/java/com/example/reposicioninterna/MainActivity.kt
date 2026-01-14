@@ -47,6 +47,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSalir: Button
     private lateinit var btnAgregarItem: Button
     private lateinit var tvResumen: TextView
+    private lateinit var containerVidrio2: LinearLayout
+    private lateinit var labelOrigenCorte: TextView
 
     private lateinit var dbHelper: ReposicionDbHelper
 
@@ -90,6 +92,8 @@ class MainActivity : AppCompatActivity() {
         btnSalir = findViewById(R.id.btnSalir)
         btnAgregarItem = findViewById(R.id.btnAgregarItem)
         tvResumen = findViewById(R.id.tvResumen)
+        containerVidrio2 = findViewById(R.id.containerVidrio2)
+        labelOrigenCorte = findViewById(R.id.labelOrigenCorte)
 
         initFecha()
         initDatePicker()
@@ -119,6 +123,9 @@ class MainActivity : AppCompatActivity() {
         btnAgregarItem.setOnClickListener {
             onAgregarItem()
         }
+
+        // Setup reactive preview updates
+        setupReactivePreview()
 
         requestPinnedShortcutIfNeeded()
     }
@@ -252,6 +259,149 @@ class MainActivity : AppCompatActivity() {
             it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         spTipologia.adapter = tipologiaAdapter
+        
+        // Set Float as default if available
+        val floatIndex = tipologiaList.indexOfFirst { it.contains("Float", ignoreCase = true) }
+        if (floatIndex >= 0) {
+            spTipologia.setSelection(floatIndex)
+        }
+        
+        // Listen for tipología changes to update UI
+        spTipologia.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                val tipologia = tipologiaList.getOrNull(position)
+                updateUIForTipologia(tipologia)
+                // Trigger preview update
+                tryUpdatePreview()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setupReactivePreview() {
+        // Setup listeners on all fields to update preview reactively
+        val textWatcher = object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                tryUpdatePreview()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
+
+        etAlto.addTextChangedListener(textWatcher)
+        etAncho.addTextChangedListener(textWatcher)
+        etMotivo.addTextChangedListener(textWatcher)
+
+        // Spinner listeners
+        val spinnerListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                tryUpdatePreview()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        spMaterial.onItemSelectedListener = spinnerListener
+        spResponsable.onItemSelectedListener = spinnerListener
+        spSector.onItemSelectedListener = spinnerListener
+
+        // Checkbox listeners
+        val checkboxListener = { _: android.widget.CompoundButton, _: Boolean ->
+            tryUpdatePreview()
+        }
+
+        cbPulido.setOnCheckedChangeListener(checkboxListener)
+        cbTemplado.setOnCheckedChangeListener(checkboxListener)
+        cbPulidoCara2.setOnCheckedChangeListener(checkboxListener)
+        cbTempladoCara2.setOnCheckedChangeListener(checkboxListener)
+        cbDvh.setOnCheckedChangeListener(checkboxListener)
+
+        // RadioGroup listener
+        rgOrigenCorte.setOnCheckedChangeListener { _, _ ->
+            tryUpdatePreview()
+        }
+    }
+
+    private fun tryUpdatePreview() {
+        // Silently update preview without showing errors
+        try {
+            val fecha = etFecha.text.toString().trim()
+            val numeroPedido = etNumeroPedido.text.toString().trim()
+
+            if (fecha.isEmpty() || numeroPedido.isEmpty()) {
+                tvResumen.text = getString(R.string.preview_hint)
+                return
+            }
+
+            val responsable = spResponsable.selectedItem?.toString()
+            val sector = spSector.selectedItem?.toString()
+            val tipologia = spTipologia.selectedItem?.toString()
+            val material = spMaterial.selectedItem?.toString()
+            val motivo = etMotivo.text.toString().trim()
+            val alto = etAlto.text.toString().trim()
+            val ancho = etAncho.text.toString().trim()
+
+            val pulidoCara1 = cbPulido.isChecked
+            val templadoCara1 = cbTemplado.isChecked
+            val pulidoCara2 = cbPulidoCara2.isChecked
+            val templadoCara2 = cbTempladoCara2.isChecked
+            val yaEsDvh = cbDvh.isChecked
+
+            val origenCorte = when (rgOrigenCorte.checkedRadioButtonId) {
+                rbFloat.id -> "Cortar de Float"
+                rbLaminado.id -> "Cortar de Laminado"
+                else -> "Cortar de Laminado"
+            }
+
+            val record = ReposicionRecord(
+                fecha = fecha,
+                numeroPedido = numeroPedido,
+                responsable = responsable,
+                sector = sector,
+                tipologia = tipologia,
+                material = material,
+                alto = alto,
+                ancho = ancho,
+                motivo = motivo,
+                pulidoCara1 = pulidoCara1,
+                templadoCara1 = templadoCara1,
+                pulidoCara2 = pulidoCara2,
+                templadoCara2 = templadoCara2,
+                yaEsDvh = yaEsDvh,
+                origenCorte = origenCorte
+            )
+
+            updateResumen(record)
+        } catch (e: Exception) {
+            // Silently ignore errors during preview
+        }
+    }
+
+    /**
+     * Update UI visibility based on selected Tipología
+     * Float: Show only Vidrio 1 processes, hide Vidrio 2 and Origen del corte
+     * Laminado: Show both Vidrio 1 and Vidrio 2 processes, show Origen del corte
+     */
+    private fun updateUIForTipologia(tipologia: String?) {
+        when {
+            tipologia?.contains("Float", ignoreCase = true) == true -> {
+                // For Float: hide Vidrio 2 and Origen del corte
+                containerVidrio2.visibility = android.view.View.GONE
+                labelOrigenCorte.visibility = android.view.View.GONE
+                rgOrigenCorte.visibility = android.view.View.GONE
+            }
+            tipologia?.contains("Laminado", ignoreCase = true) == true -> {
+                // For Laminado: show both vidrios and origen del corte
+                containerVidrio2.visibility = android.view.View.VISIBLE
+                labelOrigenCorte.visibility = android.view.View.VISIBLE
+                rgOrigenCorte.visibility = android.view.View.VISIBLE
+            }
+            else -> {
+                // Default: show all
+                containerVidrio2.visibility = android.view.View.VISIBLE
+                labelOrigenCorte.visibility = android.view.View.VISIBLE
+                rgOrigenCorte.visibility = android.view.View.VISIBLE
+            }
+        }
     }
 
     // ---------- BOTONES PRINCIPALES ----------

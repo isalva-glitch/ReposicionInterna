@@ -309,6 +309,7 @@
 
         <!-- PROCESOS Y ORIGEN -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardProcesos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
@@ -378,6 +379,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/containerVidrio2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -419,6 +421,7 @@
 
                 <!-- Origen del corte -->
                 <TextView
+                    android:id="@+id/labelOrigenCorte"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Origen del corte"
