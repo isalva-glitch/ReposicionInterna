@@ -25,8 +25,19 @@ class RecordsActivity : AppCompatActivity() {
     }
 
     private fun loadRecords() {
-        val records = dbHelper.getAllRecords()
-        val adapter = RecordsAdapter(this, records)
+        val allRecords = dbHelper.getAllRecords()
+        
+        // Group by order number, sort groups by most recent activity, then flatten
+        val sortedRecords = allRecords.groupBy { it.numeroPedido }
+            .entries.sortedByDescending { entry ->
+                entry.value.maxOfOrNull { it.timestamp } ?: 0L
+            }
+            .flatMap { entry -> 
+                // Sort items within order by timestamp (oldest first or newest first? usually item 1, 2, 3...)
+                entry.value.sortedBy { it.timestamp } 
+            }
+
+        val adapter = RecordsAdapter(this, sortedRecords)
         listView.adapter = adapter
     }
 }

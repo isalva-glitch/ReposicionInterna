@@ -23,8 +23,26 @@ class RecordsAdapter(
         val tvProcesos = view.findViewById<TextView>(R.id.tvProcesos)
         val tvResponsable = view.findViewById<TextView>(R.id.tvResponsable)
         val tvMotivo = view.findViewById<TextView>(R.id.tvMotivo)
+        
+        // Ensure visibility
+        tvMaterial.visibility = View.VISIBLE
+        tvProcesos.visibility = View.VISIBLE
+        tvMotivo.visibility = View.VISIBLE
 
-        tvPedido.text = "${record?.fecha ?: ""} · Pedido ${record?.numeroPedido ?: ""}"
+        // Check if previous item is from same order
+        val previousRecord = if (position > 0) getItem(position - 1) else null
+        val isSameOrder = previousRecord != null && previousRecord.numeroPedido == record?.numeroPedido
+
+        if (isSameOrder) {
+            tvPedido.visibility = View.GONE
+            tvResponsable.visibility = View.GONE
+        } else {
+            tvPedido.visibility = View.VISIBLE
+            tvResponsable.visibility = View.VISIBLE
+            tvPedido.text = "${record?.fecha ?: ""} · Pedido ${record?.numeroPedido ?: ""}"
+            tvResponsable.text = "Resp: ${record?.responsable ?: "-"} · Sector: ${record?.sector ?: "-"}"
+        }
+
         tvMaterial.text = listOfNotNull(
             record?.tipologia,
             record?.material,
@@ -44,7 +62,6 @@ class RecordsAdapter(
         ).joinToString(" • ")
 
         tvProcesos.text = "$cara1   |   $cara2"
-        tvResponsable.text = "Resp: ${record?.responsable ?: "-"} · Sector: ${record?.sector ?: "-"}"
         tvMotivo.text = "Motivo: ${record?.motivo?.ifEmpty { "-" } ?: "-"}"
 
         return view

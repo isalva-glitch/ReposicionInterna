@@ -4,8 +4,10 @@ data class ReposicionRecord(
     val id: Long = 0,
     val fecha: String,
     val numeroPedido: String,
+    val cliente: String?,
     val responsable: String?,
     val sector: String?,
+    val sectorDestino: String?,
     val tipologia: String? = null,
     val material: String?,
     val alto: String? = null,
@@ -18,6 +20,7 @@ data class ReposicionRecord(
     val pulidoCara2: Boolean,
     val templadoCara2: Boolean,
     val yaEsDvh: Boolean,
+    val atencionVidrioForma: Boolean,
     val origenCorte: String,
     val pdfPath: String? = null,
     val timestamp: Long = System.currentTimeMillis()

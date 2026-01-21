@@ -15,8 +15,10 @@ class ReposicionDbHelper(context: Context) :
                 $COL_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COL_FECHA TEXT,
                 $COL_NUM_PEDIDO TEXT NOT NULL,
+                $COL_CLIENTE TEXT,
                 $COL_RESPONSABLE TEXT,
                 $COL_SECTOR TEXT,
+                $COL_SECTOR_DESTINO TEXT,
                 $COL_TIPOLOGIA TEXT,
                 $COL_MATERIAL TEXT,
                 $COL_ALTO TEXT,
@@ -29,6 +31,7 @@ class ReposicionDbHelper(context: Context) :
                 $COL_PULIDO_C2 INTEGER,
                 $COL_TEMPLADO_C2 INTEGER,
                 $COL_DVH INTEGER,
+                $COL_ATENCION_FORMA INTEGER,
                 $COL_ORIGEN TEXT,
                 $COL_PDF_PATH TEXT,
                 $COL_TIMESTAMP INTEGER
@@ -38,9 +41,27 @@ class ReposicionDbHelper(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Para simplificar, borramos y recreamos (se pierden registros anteriores)
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_REPOSICION")
-        onCreate(db)
+        if (oldVersion < 7) {
+            // MIGRATION: Agregamos columnas 'cliente' y 'atencion_c_forma'
+            try {
+                db.execSQL("ALTER TABLE $TABLE_REPOSICION ADD COLUMN $COL_CLIENTE TEXT")
+            } catch (e: Exception) {
+                // Ignore if exists
+            }
+            try {
+                db.execSQL("ALTER TABLE $TABLE_REPOSICION ADD COLUMN $COL_ATENCION_FORMA INTEGER DEFAULT 0")
+            } catch (e: Exception) {
+                // Ignore if exists
+            }
+        }
+        if (oldVersion < 8) {
+            // MIGRATION: Agregamos columna 'sector_destino'
+            try {
+                db.execSQL("ALTER TABLE $TABLE_REPOSICION ADD COLUMN $COL_SECTOR_DESTINO TEXT")
+            } catch (e: Exception) {
+                // Ignore if exists
+            }
+        }
     }
 
     fun insertRecord(record: ReposicionRecord): Long {
@@ -48,8 +69,10 @@ class ReposicionDbHelper(context: Context) :
         val values = ContentValues().apply {
             put(COL_FECHA, record.fecha)
             put(COL_NUM_PEDIDO, record.numeroPedido)
+            put(COL_CLIENTE, record.cliente)
             put(COL_RESPONSABLE, record.responsable)
             put(COL_SECTOR, record.sector)
+            put(COL_SECTOR_DESTINO, record.sectorDestino)
             put(COL_TIPOLOGIA, record.tipologia)
             put(COL_MATERIAL, record.material)
             put(COL_ALTO, record.alto)
@@ -64,6 +87,7 @@ class ReposicionDbHelper(context: Context) :
             put(COL_TEMPLADO_C2, if (record.templadoCara2) 1 else 0)
 
             put(COL_DVH, if (record.yaEsDvh) 1 else 0)
+            put(COL_ATENCION_FORMA, if (record.atencionVidrioForma) 1 else 0)
             put(COL_ORIGEN, record.origenCorte)
             put(COL_PDF_PATH, record.pdfPath)
             put(COL_TIMESTAMP, record.timestamp)
@@ -77,6 +101,34 @@ class ReposicionDbHelper(context: Context) :
 
     fun getRecentRecords(limit: Int): List<ReposicionRecord> {
         return getRecordsInternal(limit)
+    }
+
+    fun deleteRecord(id: Long) {
+        val db = writableDatabase
+        db.delete(TABLE_REPOSICION, "$COL_ID = ?", arrayOf(id.toString()))
+    }
+
+    fun getItemsByOrderNumber(numeroPedido: String): List<ReposicionRecord> {
+        val result = mutableListOf<ReposicionRecord>()
+        val db = readableDatabase
+
+        val cursor = db.query(
+            TABLE_REPOSICION,
+            null,
+            "$COL_NUM_PEDIDO = ?",
+            arrayOf(numeroPedido),
+            null,
+            null,
+            "$COL_TIMESTAMP ASC"
+        )
+
+        cursor.use {
+            while (it.moveToNext()) {
+                result.add(cursorToRecord(it))
+            }
+        }
+
+        return result
     }
 
     private fun getRecordsInternal(limit: Int?): List<ReposicionRecord> {
@@ -96,69 +148,89 @@ class ReposicionDbHelper(context: Context) :
 
         cursor.use {
             while (it.moveToNext()) {
-                val fecha = it.getString(it.getColumnIndexOrThrow(COL_FECHA))
-                val numPedido = it.getString(it.getColumnIndexOrThrow(COL_NUM_PEDIDO))
-                val responsable = it.getString(it.getColumnIndexOrThrow(COL_RESPONSABLE))
-                val sector = it.getString(it.getColumnIndexOrThrow(COL_SECTOR))
-                val tipologia = it.getString(it.getColumnIndexOrThrow(COL_TIPOLOGIA))
-                val material = it.getString(it.getColumnIndexOrThrow(COL_MATERIAL))
-                val alto = it.getString(it.getColumnIndexOrThrow(COL_ALTO))
-                val ancho = it.getString(it.getColumnIndexOrThrow(COL_ANCHO))
-                val cara1 = it.getString(it.getColumnIndexOrThrow(COL_CARA1))
-                val cara2 = it.getString(it.getColumnIndexOrThrow(COL_CARA2))
-                val motivo = it.getString(it.getColumnIndexOrThrow(COL_MOTIVO))
-
-                val pulidoC1 = it.getInt(it.getColumnIndexOrThrow(COL_PULIDO_C1)) == 1
-                val templadoC1 = it.getInt(it.getColumnIndexOrThrow(COL_TEMPLADO_C1)) == 1
-                val pulidoC2 = it.getInt(it.getColumnIndexOrThrow(COL_PULIDO_C2)) == 1
-                val templadoC2 = it.getInt(it.getColumnIndexOrThrow(COL_TEMPLADO_C2)) == 1
-
-                val dvh = it.getInt(it.getColumnIndexOrThrow(COL_DVH)) == 1
-                val origen = it.getString(it.getColumnIndexOrThrow(COL_ORIGEN))
-                val pdfPath = it.getString(it.getColumnIndexOrThrow(COL_PDF_PATH))
-                val timestamp = it.getLong(it.getColumnIndexOrThrow(COL_TIMESTAMP))
-
-                result.add(
-                    ReposicionRecord(
-                        id = it.getLong(it.getColumnIndexOrThrow(COL_ID)),
-                        fecha = fecha ?: "",
-                        numeroPedido = numPedido ?: "",
-                        responsable = responsable,
-                        sector = sector,
-                        tipologia = tipologia,
-                        material = material,
-                        alto = alto,
-                        ancho = ancho,
-                        cara1 = cara1,
-                        cara2 = cara2,
-                        motivo = motivo,
-                        pulidoCara1 = pulidoC1,
-                        templadoCara1 = templadoC1,
-                        pulidoCara2 = pulidoC2,
-                        templadoCara2 = templadoC2,
-                        yaEsDvh = dvh,
-                        origenCorte = origen ?: "",
-                        pdfPath = pdfPath,
-                        timestamp = timestamp
-                    )
-                )
+                result.add(cursorToRecord(it))
             }
         }
 
         return result
     }
 
+    private fun cursorToRecord(cursor: android.database.Cursor): ReposicionRecord {
+        val fecha = cursor.getString(cursor.getColumnIndexOrThrow(COL_FECHA))
+        val numPedido = cursor.getString(cursor.getColumnIndexOrThrow(COL_NUM_PEDIDO))
+        // Soportar migracion donde la columna puede no existir si algo fallo
+        val clienteIdx = cursor.getColumnIndex(COL_CLIENTE)
+        val cliente = if (clienteIdx >= 0) cursor.getString(clienteIdx) else null
+
+        val responsable = cursor.getString(cursor.getColumnIndexOrThrow(COL_RESPONSABLE))
+        val sector = cursor.getString(cursor.getColumnIndexOrThrow(COL_SECTOR))
+        
+        // MIGRATION v8
+        val sectorDestinoIdx = cursor.getColumnIndex(COL_SECTOR_DESTINO)
+        val sectorDestino = if (sectorDestinoIdx >= 0) cursor.getString(sectorDestinoIdx) else null
+
+        val tipologia = cursor.getString(cursor.getColumnIndexOrThrow(COL_TIPOLOGIA))
+        val material = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATERIAL))
+        val alto = cursor.getString(cursor.getColumnIndexOrThrow(COL_ALTO))
+        val ancho = cursor.getString(cursor.getColumnIndexOrThrow(COL_ANCHO))
+        val cara1 = cursor.getString(cursor.getColumnIndexOrThrow(COL_CARA1))
+        val cara2 = cursor.getString(cursor.getColumnIndexOrThrow(COL_CARA2))
+        val motivo = cursor.getString(cursor.getColumnIndexOrThrow(COL_MOTIVO))
+
+        val pulidoC1 = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PULIDO_C1)) == 1
+        val templadoC1 = cursor.getInt(cursor.getColumnIndexOrThrow(COL_TEMPLADO_C1)) == 1
+        val pulidoC2 = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PULIDO_C2)) == 1
+        val templadoC2 = cursor.getInt(cursor.getColumnIndexOrThrow(COL_TEMPLADO_C2)) == 1
+
+        val dvh = cursor.getInt(cursor.getColumnIndexOrThrow(COL_DVH)) == 1
+        
+        val atencionFormaIdx = cursor.getColumnIndex(COL_ATENCION_FORMA)
+        val atencionForma = if (atencionFormaIdx >= 0) cursor.getInt(atencionFormaIdx) == 1 else false
+
+        val origen = cursor.getString(cursor.getColumnIndexOrThrow(COL_ORIGEN))
+        val pdfPath = cursor.getString(cursor.getColumnIndexOrThrow(COL_PDF_PATH))
+        val timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIMESTAMP))
+
+        return ReposicionRecord(
+            id = cursor.getLong(cursor.getColumnIndexOrThrow(COL_ID)),
+            fecha = fecha ?: "",
+            numeroPedido = numPedido ?: "",
+            cliente = cliente,
+            responsable = responsable,
+            sector = sector,
+            sectorDestino = sectorDestino,
+            tipologia = tipologia,
+            material = material,
+            alto = alto,
+            ancho = ancho,
+            cara1 = cara1,
+            cara2 = cara2,
+            motivo = motivo,
+            pulidoCara1 = pulidoC1,
+            templadoCara1 = templadoC1,
+            pulidoCara2 = pulidoC2,
+            templadoCara2 = templadoC2,
+            yaEsDvh = dvh,
+            atencionVidrioForma = atencionForma,
+            origenCorte = origen ?: "",
+            pdfPath = pdfPath,
+            timestamp = timestamp
+        )
+    }
+
 
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
-        // SUBIR VERSION PARA FORZAR RECREACIÓN
-        private const val DATABASE_VERSION = 6
+        // SUBIR VERSION PARA MIGRACION
+        private const val DATABASE_VERSION = 8
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"
         const val COL_NUM_PEDIDO = "numero_pedido"
+        const val COL_CLIENTE = "cliente"
         const val COL_RESPONSABLE = "responsable"
         const val COL_SECTOR = "sector"
+        const val COL_SECTOR_DESTINO = "sector_destino"
         const val COL_TIPOLOGIA = "tipologia"
         const val COL_MATERIAL = "material"
         const val COL_ALTO = "alto"
@@ -173,6 +245,7 @@ class ReposicionDbHelper(context: Context) :
         const val COL_TEMPLADO_C2 = "templado_cara2"
 
         const val COL_DVH = "dvh"
+        const val COL_ATENCION_FORMA = "atencion_c_forma"
         const val COL_ORIGEN = "origen_corte"
         const val COL_PDF_PATH = "pdf_path"
         const val COL_TIMESTAMP = "ts"

@@ -25,8 +25,10 @@ class MainActivity : AppCompatActivity() {
     // Controles
     private lateinit var etFecha: EditText
     private lateinit var etNumeroPedido: EditText
+    private lateinit var etCliente: EditText
     private lateinit var spResponsable: Spinner
     private lateinit var spSector: Spinner
+    private lateinit var spSectorDestino: Spinner
     private lateinit var spTipologia: Spinner
     private lateinit var spMaterial: Spinner
     private lateinit var etAlto: EditText
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cbPulidoCara2: CheckBox
     private lateinit var cbTempladoCara2: CheckBox
     private lateinit var cbDvh: CheckBox
+    private lateinit var cbAtencionForma: CheckBox
     private lateinit var rgOrigenCorte: RadioGroup
     private lateinit var rbFloat: RadioButton
     private lateinit var rbLaminado: RadioButton
@@ -47,8 +50,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSalir: Button
     private lateinit var btnAgregarItem: Button
     private lateinit var tvResumen: TextView
+    private lateinit var containerItemsPreview: LinearLayout
+    private lateinit var btnEliminarItem: Button
     private lateinit var containerVidrio2: LinearLayout
     private lateinit var labelOrigenCorte: TextView
+
+    private var selectedItemId: Long? = null
 
     private lateinit var dbHelper: ReposicionDbHelper
 
@@ -70,8 +77,10 @@ class MainActivity : AppCompatActivity() {
         // Vincular vistas
         etFecha = findViewById(R.id.etFecha)
         etNumeroPedido = findViewById(R.id.etNumeroPedido)
+        etCliente = findViewById(R.id.etCliente)
         spResponsable = findViewById(R.id.spResponsable)
         spSector = findViewById(R.id.spSector)
+        spSectorDestino = findViewById(R.id.spSectorDestino)
         spTipologia = findViewById(R.id.spTipologia)
         spMaterial = findViewById(R.id.spMaterial)
         etAlto = findViewById(R.id.etAlto)
@@ -82,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         cbPulidoCara2 = findViewById(R.id.cbPulidoCara2)
         cbTempladoCara2 = findViewById(R.id.cbTempladoCara2)
         cbDvh = findViewById(R.id.cbDvh)
+        cbAtencionForma = findViewById(R.id.cbAtencionForma)
         rgOrigenCorte = findViewById(R.id.rgOrigenCorte)
         rbFloat = findViewById(R.id.rbFloat)
         rbLaminado = findViewById(R.id.rbLaminado)
@@ -91,7 +101,10 @@ class MainActivity : AppCompatActivity() {
         btnVerRegistros = findViewById(R.id.btnVerRegistros)
         btnSalir = findViewById(R.id.btnSalir)
         btnAgregarItem = findViewById(R.id.btnAgregarItem)
+        btnAgregarItem = findViewById(R.id.btnAgregarItem)
         tvResumen = findViewById(R.id.tvResumen)
+        containerItemsPreview = findViewById(R.id.containerItemsPreview)
+        btnEliminarItem = findViewById(R.id.btnEliminarItem)
         containerVidrio2 = findViewById(R.id.containerVidrio2)
         labelOrigenCorte = findViewById(R.id.labelOrigenCorte)
 
@@ -106,6 +119,7 @@ class MainActivity : AppCompatActivity() {
         // BOTONES
         btnPreviewPdf.setOnClickListener { onPreviewPdf() }
         btnGuardarEnviar.setOnClickListener { onGuardarYEnviar() }
+        btnEliminarItem.setOnClickListener { onDeleteSelectedItem() }
 
         btnNuevoPedido.setOnClickListener {
             clearForm()
@@ -251,6 +265,15 @@ class MainActivity : AppCompatActivity() {
         }
         spSector.adapter = sectorAdapter
 
+        val sectorDestinoAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            sectorList
+        ).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spSectorDestino.adapter = sectorDestinoAdapter
+
         val tipologiaAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -291,6 +314,7 @@ class MainActivity : AppCompatActivity() {
         etAlto.addTextChangedListener(textWatcher)
         etAncho.addTextChangedListener(textWatcher)
         etMotivo.addTextChangedListener(textWatcher)
+        etCliente.addTextChangedListener(textWatcher)
 
         // Spinner listeners
         val spinnerListener = object : AdapterView.OnItemSelectedListener {
@@ -303,6 +327,7 @@ class MainActivity : AppCompatActivity() {
         spMaterial.onItemSelectedListener = spinnerListener
         spResponsable.onItemSelectedListener = spinnerListener
         spSector.onItemSelectedListener = spinnerListener
+        spSectorDestino.onItemSelectedListener = spinnerListener
 
         // Checkbox listeners
         val checkboxListener = { _: android.widget.CompoundButton, _: Boolean ->
@@ -314,6 +339,7 @@ class MainActivity : AppCompatActivity() {
         cbPulidoCara2.setOnCheckedChangeListener(checkboxListener)
         cbTempladoCara2.setOnCheckedChangeListener(checkboxListener)
         cbDvh.setOnCheckedChangeListener(checkboxListener)
+        cbAtencionForma.setOnCheckedChangeListener(checkboxListener)
 
         // RadioGroup listener
         rgOrigenCorte.setOnCheckedChangeListener { _, _ ->
@@ -334,17 +360,20 @@ class MainActivity : AppCompatActivity() {
 
             val responsable = spResponsable.selectedItem?.toString()
             val sector = spSector.selectedItem?.toString()
+            val sectorDestino = spSectorDestino.selectedItem?.toString()
             val tipologia = spTipologia.selectedItem?.toString()
             val material = spMaterial.selectedItem?.toString()
             val motivo = etMotivo.text.toString().trim()
             val alto = etAlto.text.toString().trim()
             val ancho = etAncho.text.toString().trim()
+            val cliente = etCliente.text.toString().trim()
 
             val pulidoCara1 = cbPulido.isChecked
             val templadoCara1 = cbTemplado.isChecked
             val pulidoCara2 = cbPulidoCara2.isChecked
             val templadoCara2 = cbTempladoCara2.isChecked
             val yaEsDvh = cbDvh.isChecked
+            val atencionForma = cbAtencionForma.isChecked
 
             val origenCorte = when (rgOrigenCorte.checkedRadioButtonId) {
                 rbFloat.id -> "Cortar de Float"
@@ -355,8 +384,10 @@ class MainActivity : AppCompatActivity() {
             val record = ReposicionRecord(
                 fecha = fecha,
                 numeroPedido = numeroPedido,
+                cliente = cliente,
                 responsable = responsable,
                 sector = sector,
+                sectorDestino = sectorDestino,
                 tipologia = tipologia,
                 material = material,
                 alto = alto,
@@ -367,6 +398,7 @@ class MainActivity : AppCompatActivity() {
                 pulidoCara2 = pulidoCara2,
                 templadoCara2 = templadoCara2,
                 yaEsDvh = yaEsDvh,
+                atencionVidrioForma = atencionForma,
                 origenCorte = origenCorte
             )
 
@@ -404,31 +436,131 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateResumen(record: ReposicionRecord) {
+        // Count existing items for this order
+        val existingItems = dbHelper.getItemsByOrderNumber(record.numeroPedido)
+
+        // Clear container
+        containerItemsPreview.removeAllViews()
+        selectedItemId = null
+        btnEliminarItem.isEnabled = false
+
+        if (existingItems.isNotEmpty()) {
+            existingItems.forEachIndexed { index, item ->
+                // Inflate a simple TextView or custom view
+                val itemLayout = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(16, 16, 16, 16)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    isClickable = true
+                    isFocusable = true
+                    background = android.graphics.drawable.ColorDrawable(0x00000000) // Transparent default
+                }
+
+                val title = TextView(this).apply {
+                    text = "#${index + 1} · ${item.tipologia ?: "-"} · ${item.material}"
+                    setTypeface(null, Typeface.BOLD)
+                    setTextColor(resources.getColor(R.color.accent_text, null))
+                    textSize = 14f
+                }
+                
+                val dim = if (!item.alto.isNullOrBlank()) "${item.alto}x${item.ancho}" else ""
+                val subtitle = TextView(this).apply {
+                    text = "$dim ${item.origenCorte}"
+                    setTextColor(resources.getColor(R.color.muted_text, null))
+                    textSize = 12f
+                }
+
+                itemLayout.addView(title)
+                itemLayout.addView(subtitle)
+
+                itemLayout.setOnClickListener {
+                    // Update selection logic
+                    selectedItemId = item.id
+                    btnEliminarItem.isEnabled = true
+                    
+                    // Visual feedback (reset others, highlight this)
+                    for (i in 0 until containerItemsPreview.childCount) {
+                        val child = containerItemsPreview.getChildAt(i)
+                        child.setBackgroundColor(0x00000000)
+                    }
+                    itemLayout.setBackgroundColor(0xFFE0F2F1.toInt()) // Light teal highlight
+                }
+
+                containerItemsPreview.addView(itemLayout)
+            }
+        }
+        
+        // Current item (Footer)
+        val sb = StringBuilder()
+        sb.append("NUEVO ITEM (Editando):\n")
+        
+        val procCara1 = listOfNotNull(
+            if (record.pulidoCara1) "Pulido" else null,
+            if (record.templadoCara1) "Templado" else null
+        ).joinToString(" · ").ifEmpty { "Sin procesos" }
+
+        val procCara2 = listOfNotNull(
+            if (record.pulidoCara2) "Pulido" else null,
+            if (record.templadoCara2) "Templado" else null
+        ).joinToString(" · ").ifEmpty { "Sin procesos" }
+
+        val medidas = listOfNotNull(
+            record.alto?.takeIf { it.isNotBlank() },
+            record.ancho?.takeIf { it.isNotBlank() }
+        ).joinToString(" x ")
+        
+        sb.append("${record.tipologia ?: ""} · ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})\n")
+        sb.append("Cliente: ${record.cliente ?: "-"}\n")
+        sb.append("Vidrio 1: $procCara1 | Vidrio 2: $procCara2\n")
+        sb.append("${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · ${if (record.atencionVidrioForma) "¡ATENCIÓN C/FORMA!" else "Recto"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}\n")
+        sb.append("Sector Destino: ${record.sectorDestino ?: "-"}\n")
+        sb.append("Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}")
+
+        tvResumen.text = sb.toString()
+    }
+
+    private fun onDeleteSelectedItem() {
+        val id = selectedItemId ?: return
+        if (id > 0) {
+            dbHelper.deleteRecord(id)
+            Toast.makeText(this, "Item eliminado", Toast.LENGTH_SHORT).show()
+            tryUpdatePreview()
+        }
+    }
+
     // ---------- BOTONES PRINCIPALES ----------
 
     private fun onGuardarYEnviar() {
-        val record = gatherRecord() ?: return
-
-        val savedId = dbHelper.insertRecord(record)
-        if (savedId > 0) {
-            Toast.makeText(this, "Registro #$savedId guardado", Toast.LENGTH_SHORT).show()
-            performDatabaseBackup()
-        } else {
-            Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show()
+        val numeroPedido = etNumeroPedido.text.toString().trim()
+        if (numeroPedido.isEmpty()) {
+            Toast.makeText(this, "Ingresar N° de pedido", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Get all items for this order
+        val allItems = dbHelper.getItemsByOrderNumber(numeroPedido)
+        
+        if (allItems.isEmpty()) {
+            Toast.makeText(this, "No hay items en este pedido", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        val pdfFile = generatePdfForRecord(record)
+        // Generate PDF with all items
+        val pdfFile = generatePdfForOrder(allItems)
         if (pdfFile != null) {
             sendEmailWithAttachment(pdfFile, "application/pdf")
+            Toast.makeText(this, "Pedido #$numeroPedido enviado con ${allItems.size} item(s)", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "No se pudo generar el PDF", Toast.LENGTH_SHORT).show()
+            return
         }
 
         clearForm()
-        Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT)
-            .show()
+        Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT).show()
     }
 
     private fun onAgregarItem() {
@@ -448,8 +580,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onPreviewPdf() {
-        val record = gatherRecord() ?: return
-        val pdfFile = generatePdfForRecord(record)
+        val numeroPedido = etNumeroPedido.text.toString().trim()
+        if (numeroPedido.isEmpty()) {
+            Toast.makeText(this, "Ingresar N° de pedido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val allItems = dbHelper.getItemsByOrderNumber(numeroPedido)
+
+        if (allItems.isEmpty()) {
+            Toast.makeText(this, "No hay items guardados para previsualizar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val pdfFile = generatePdfForOrder(allItems)
         if (pdfFile != null) {
             openPdfPreview(pdfFile)
         } else {
@@ -478,12 +622,14 @@ class MainActivity : AppCompatActivity() {
 
         val responsable = spResponsable.selectedItem?.toString()
         val sector = spSector.selectedItem?.toString()
+        val sectorDestino = spSectorDestino.selectedItem?.toString()
         val tipologia = spTipologia.selectedItem?.toString()
         val material = spMaterial.selectedItem?.toString()
 
         val motivo = etMotivo.text.toString().trim()
         val alto = etAlto.text.toString().trim()
         val ancho = etAncho.text.toString().trim()
+        val cliente = etCliente.text.toString().trim()
         if (responsable.isNullOrBlank()) {
             Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
             return null
@@ -504,6 +650,7 @@ class MainActivity : AppCompatActivity() {
         val pulidoCara2 = cbPulidoCara2.isChecked
         val templadoCara2 = cbTempladoCara2.isChecked
         val yaEsDvh = cbDvh.isChecked
+        val atencionForma = cbAtencionForma.isChecked
 
         val origenCorte = when (rgOrigenCorte.checkedRadioButtonId) {
             rbFloat.id -> "Cortar de Float"
@@ -514,8 +661,10 @@ class MainActivity : AppCompatActivity() {
         val record = ReposicionRecord(
             fecha = fecha,
             numeroPedido = numeroPedido,
+            cliente = cliente,
             responsable = responsable,
             sector = sector,
+            sectorDestino = sectorDestino,
             tipologia = tipologia,
             material = material,
             alto = alto,
@@ -526,6 +675,7 @@ class MainActivity : AppCompatActivity() {
             pulidoCara2 = pulidoCara2,
             templadoCara2 = templadoCara2,
             yaEsDvh = yaEsDvh,
+            atencionVidrioForma = atencionForma,
             origenCorte = origenCorte
         )
 
@@ -538,6 +688,7 @@ class MainActivity : AppCompatActivity() {
     private fun clearForm() {
         initFecha()
         etNumeroPedido.text.clear()
+        etCliente.text.clear()
         etAlto.text.clear()
         etAncho.text.clear()
         etMotivo.text.clear()
@@ -551,6 +702,9 @@ class MainActivity : AppCompatActivity() {
         if (spMaterial.adapter != null && spMaterial.adapter.count > 0) {
             spMaterial.setSelection(0)
         }
+        if (spSectorDestino.adapter != null && spSectorDestino.adapter.count > 0) {
+            spSectorDestino.setSelection(0)
+        }
         if (spTipologia.adapter != null && spTipologia.adapter.count > 0) {
             spTipologia.setSelection(0)
         }
@@ -560,6 +714,7 @@ class MainActivity : AppCompatActivity() {
         cbPulidoCara2.isChecked = false
         cbTempladoCara2.isChecked = false
         cbDvh.isChecked = false
+        cbAtencionForma.isChecked = false
 
         rbFloat.isChecked = true
 
@@ -572,6 +727,9 @@ class MainActivity : AppCompatActivity() {
         etAncho.text.clear()
         etMotivo.text.clear()
 
+        if (spSectorDestino.adapter != null && spSectorDestino.adapter.count > 0) {
+            spSectorDestino.setSelection(0)
+        }
         if (spTipologia.adapter != null && spTipologia.adapter.count > 0) {
             spTipologia.setSelection(0)
         }
@@ -584,11 +742,13 @@ class MainActivity : AppCompatActivity() {
         cbPulidoCara2.isChecked = false
         cbTempladoCara2.isChecked = false
         cbDvh.isChecked = false
+        cbAtencionForma.isChecked = false
 
         rbFloat.isChecked = true
         
         // No limpiamos nro pedido, responsable, sector ni fecha
-        tvResumen.text = getString(R.string.preview_hint_item) ?: "Esperando nuevo item..."
+        // Update preview to show saved items and empty current item
+        tryUpdatePreview()
     }
 
     // ---------- GENERACIÓN DE PDF ----------
@@ -619,8 +779,10 @@ class MainActivity : AppCompatActivity() {
             // Datos generales
             canvas.drawText("Fecha: ${record.fecha}", 40f, y, paint); y += 18f
             canvas.drawText("N° Pedido: ${record.numeroPedido}", 40f, y, paint); y += 18f
+            canvas.drawText("Cliente: ${record.cliente ?: "-"}", 40f, y, paint); y += 18f
             canvas.drawText("Responsable: ${record.responsable ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Sector: ${record.sector ?: ""}", 40f, y, paint); y += 18f
+            canvas.drawText("Sector Destino: ${record.sectorDestino ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Tipología: ${record.tipologia ?: ""}", 40f, y, paint); y += 18f
             canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 18f
             if (!record.alto.isNullOrBlank() || !record.ancho.isNullOrBlank()) {
@@ -655,7 +817,8 @@ class MainActivity : AppCompatActivity() {
 
             // Otros
             canvas.drawText(
-                "Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}",
+                "Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}  " +
+                        "C/Forma: ${if (record.atencionVidrioForma) "SI" else "NO"}",
                 40f,
                 y,
                 paint
@@ -665,6 +828,121 @@ class MainActivity : AppCompatActivity() {
             pdfDocument.finishPage(page)
 
             val fileName = "reposicion_${record.numeroPedido}_${System.currentTimeMillis()}.pdf"
+            val file = File(cacheDir, fileName)
+            FileOutputStream(file).use { out ->
+                pdfDocument.writeTo(out)
+            }
+            pdfDocument.close()
+
+            file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun generatePdfForOrder(items: List<ReposicionRecord>): File? {
+        if (items.isEmpty()) return null
+        
+        return try {
+            val pdfDocument = PdfDocument()
+            val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            val canvas = page.canvas
+
+            val paint = Paint().apply {
+                color = android.graphics.Color.BLACK
+                textSize = 11f
+            }
+            val titlePaint = Paint().apply {
+                color = android.graphics.Color.BLACK
+                textSize = 16f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            }
+            val subtitlePaint = Paint().apply {
+                color = android.graphics.Color.BLACK
+                textSize = 12f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            }
+
+            var y = 40f
+            val firstItem = items.first()
+
+            canvas.drawText("Fontela Cristales - Reposición interna", 40f, y, titlePaint)
+            y += 25f
+
+            canvas.drawText("Pedido #${firstItem.numeroPedido} - ${firstItem.fecha}", 40f, y, subtitlePaint)
+            y += 18f
+            canvas.drawText("Cliente: ${firstItem.cliente ?: "-"}", 40f, y, paint)
+            y += 18f
+            canvas.drawText("Responsable: ${firstItem.responsable ?: ""} | Sector: ${firstItem.sector ?: ""}", 40f, y, paint)
+            y += 20f
+            
+            // Note: Sector Destino is per item, so it goes in item list below
+
+            canvas.drawText("Items (${items.size}):", 40f, y, subtitlePaint)
+            y += 15f
+
+            items.forEachIndexed { index, item ->
+                if (y > 750f) {
+                    pdfDocument.finishPage(page)
+                    val newPage = pdfDocument.startPage(pageInfo)
+                    canvas.drawText("Fontela Cristales - Continuación", 40f, 40f, titlePaint)
+                    y = 70f
+                }
+
+                canvas.drawText("${index + 1}. ${item.tipologia ?: ""} - ${item.material ?: ""}", 50f, y, subtitlePaint)
+                y += 14f
+
+                if (!item.alto.isNullOrBlank() || !item.ancho.isNullOrBlank()) {
+                    canvas.drawText("   Medidas: ${item.alto.orEmpty()} x ${item.ancho.orEmpty()}", 50f, y, paint)
+                    y += 14f
+                }
+
+                if (!item.sectorDestino.isNullOrBlank()) {
+                    canvas.drawText("   Sector Destino: ${item.sectorDestino}", 50f, y, paint)
+                    y += 14f
+                }
+
+                val procV1 = listOfNotNull(
+                    if (item.pulidoCara1) "Pulido" else null,
+                    if (item.templadoCara1) "Templado" else null
+                ).joinToString(", ")
+                
+                if (procV1.isNotEmpty()) {
+                    canvas.drawText("   Vidrio 1: $procV1", 50f, y, paint)
+                    y += 14f
+                }
+
+                val procV2 = listOfNotNull(
+                    if (item.pulidoCara2) "Pulido" else null,
+                    if (item.templadoCara2) "Templado" else null
+                ).joinToString(", ")
+                
+                if (procV2.isNotEmpty()) {
+                    canvas.drawText("   Vidrio 2: $procV2", 50f, y, paint)
+                    y += 14f
+                }
+
+                if (item.yaEsDvh) {
+                    canvas.drawText("   Ya es DVH", 50f, y, paint)
+                    y += 14f
+                }
+
+                canvas.drawText("   ${item.origenCorte}", 50f, y, paint)
+                y += 14f
+
+                if (!item.motivo.isNullOrBlank()) {
+                    canvas.drawText("   Motivo: ${item.motivo}", 50f, y, paint)
+                    y += 14f
+                }
+
+                y += 8f
+            }
+
+            pdfDocument.finishPage(page)
+
+            val fileName = "reposicion_${firstItem.numeroPedido}_${System.currentTimeMillis()}.pdf"
             val file = File(cacheDir, fileName)
             FileOutputStream(file).use { out ->
                 pdfDocument.writeTo(out)
@@ -719,7 +997,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateResumen(record: ReposicionRecord) {
+    private fun updateResumenLegacy(record: ReposicionRecord) {
+        // Count existing items for this order
+        val existingItems = dbHelper.getItemsByOrderNumber(record.numeroPedido)
+
+        val sb = StringBuilder()
+        
+        // Header
+        sb.append("${record.fecha} · Pedido ${record.numeroPedido}")
+        if (existingItems.isNotEmpty()) {
+            sb.append(" (${existingItems.size} guardados)")
+        }
+        sb.append("\n")
+
+        // List existing items first (compact view)
+        if (existingItems.isNotEmpty()) {
+            sb.append("--------------------------------------------------\n")
+            existingItems.forEachIndexed { index, item ->
+                val procV1 = if (item.pulidoCara1 || item.templadoCara1) "V1:Procesado" else "V1:Std"
+                val procV2 = if (item.pulidoCara2 || item.templadoCara2) "V2:Procesado" else "V2:Std"
+                val dim = if (!item.alto.isNullOrBlank()) "${item.alto}x${item.ancho}" else ""
+                
+                sb.append("#${index + 1} · ${item.tipologia ?: "-"} · ${item.material} $dim\n")
+            }
+            sb.append("--------------------------------------------------\n")
+            sb.append("NUEVO ITEM (Editando):\n")
+        }
+
+        // Current item details
         val procCara1 = listOfNotNull(
             if (record.pulidoCara1) "Pulido" else null,
             if (record.templadoCara1) "Templado" else null
@@ -734,16 +1039,13 @@ class MainActivity : AppCompatActivity() {
             record.alto?.takeIf { it.isNotBlank() },
             record.ancho?.takeIf { it.isNotBlank() }
         ).joinToString(" x ")
+        
+        sb.append("${record.tipologia ?: ""} · ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})\n")
+        sb.append("Vidrio 1: $procCara1 | Vidrio 2: $procCara2\n")
+        sb.append("${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}\n")
+        sb.append("Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}")
 
-        val resumen = """
-                ${record.fecha} · Pedido ${record.numeroPedido}
-                ${record.tipologia ?: ""} · ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})
-                Vidrio 1: $procCara1 | Vidrio 2: $procCara2
-                ${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}
-                Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}
-            """.trimIndent()
-
-        tvResumen.text = resumen
+        tvResumen.text = sb.toString()
     }
 
     private fun performDatabaseBackup() {
@@ -814,3 +1116,4 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_PINNED_SHORTCUT_REQUESTED = "pinned_shortcut_requested"
     }
 }
+
