@@ -21,6 +21,7 @@ data class ReposicionRecord(
     val templadoCara2: Boolean,
     val yaEsDvh: Boolean,
     val atencionVidrioForma: Boolean,
+    val codigoForma: String? = null,
     val origenCorte: String,
     val pdfPath: String? = null,
     val timestamp: Long = System.currentTimeMillis()

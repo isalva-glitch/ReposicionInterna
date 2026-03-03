@@ -304,6 +304,17 @@
                             android:text="Atención vidrio C/Forma"
                             android:textColor="@color/muted_text"
                             android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etCodigoForma"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Código Forma"
+                            android:maxLength="10"
+                            android:textSize="18sp"
+                            android:inputType="textCapCharacters"
+                            android:background="@drawable/input_background"
+                            android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -316,11 +327,11 @@
                     android:paddingTop="12dp">
 
                     <EditText
-                        android:id="@+id/etAlto"
+                        android:id="@+id/etAncho"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="ALTO"
+                        android:hint="ANCHO"
                         android:inputType="numberDecimal"
                         android:textSize="20sp"
                         android:gravity="center"
@@ -336,11 +347,11 @@
                         android:textColor="@color/muted_text" />
 
                     <EditText
-                        android:id="@+id/etAncho"
+                        android:id="@+id/etAlto"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="ANCHO"
+                        android:hint="ALTO"
                         android:inputType="numberDecimal"
                         android:textSize="20sp"
                         android:gravity="center"

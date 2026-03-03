@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnEliminarItem: Button
     private lateinit var containerVidrio2: LinearLayout
     private lateinit var labelOrigenCorte: TextView
+    private lateinit var etCodigoForma: EditText
 
     private var selectedItemId: Long? = null
 
@@ -107,6 +108,7 @@ class MainActivity : AppCompatActivity() {
         btnEliminarItem = findViewById(R.id.btnEliminarItem)
         containerVidrio2 = findViewById(R.id.containerVidrio2)
         labelOrigenCorte = findViewById(R.id.labelOrigenCorte)
+        etCodigoForma = findViewById(R.id.etCodigoForma)
 
         initFecha()
         initDatePicker()
@@ -315,6 +317,7 @@ class MainActivity : AppCompatActivity() {
         etAncho.addTextChangedListener(textWatcher)
         etMotivo.addTextChangedListener(textWatcher)
         etCliente.addTextChangedListener(textWatcher)
+        etCodigoForma.addTextChangedListener(textWatcher)
 
         // Spinner listeners
         val spinnerListener = object : AdapterView.OnItemSelectedListener {
@@ -374,6 +377,7 @@ class MainActivity : AppCompatActivity() {
             val templadoCara2 = cbTempladoCara2.isChecked
             val yaEsDvh = cbDvh.isChecked
             val atencionForma = cbAtencionForma.isChecked
+            val codigoForma = etCodigoForma.text.toString().trim()
 
             val origenCorte = when (rgOrigenCorte.checkedRadioButtonId) {
                 rbFloat.id -> "Cortar de Float"
@@ -399,6 +403,7 @@ class MainActivity : AppCompatActivity() {
                 templadoCara2 = templadoCara2,
                 yaEsDvh = yaEsDvh,
                 atencionVidrioForma = atencionForma,
+                codigoForma = codigoForma,
                 origenCorte = origenCorte
             )
 
@@ -467,9 +472,12 @@ class MainActivity : AppCompatActivity() {
                     textSize = 14f
                 }
                 
-                val dim = if (!item.alto.isNullOrBlank()) "${item.alto}x${item.ancho}" else ""
+                val dim = if (!item.ancho.isNullOrBlank()) "${item.ancho}x${item.alto}" else ""
+                val formaText = if (item.atencionVidrioForma) {
+                    " · ¡FORMA!${if (!item.codigoForma.isNullOrBlank()) " (${item.codigoForma})" else ""}"
+                } else ""
                 val subtitle = TextView(this).apply {
-                    text = "$dim ${item.origenCorte}"
+                    text = "$dim ${item.origenCorte}$formaText"
                     setTextColor(resources.getColor(R.color.muted_text, null))
                     textSize = 12f
                 }
@@ -509,14 +517,15 @@ class MainActivity : AppCompatActivity() {
         ).joinToString(" · ").ifEmpty { "Sin procesos" }
 
         val medidas = listOfNotNull(
-            record.alto?.takeIf { it.isNotBlank() },
-            record.ancho?.takeIf { it.isNotBlank() }
+            record.ancho?.takeIf { it.isNotBlank() },
+            record.alto?.takeIf { it.isNotBlank() }
         ).joinToString(" x ")
         
         sb.append("${record.tipologia ?: ""} · ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})\n")
         sb.append("Cliente: ${record.cliente ?: "-"}\n")
         sb.append("Vidrio 1: $procCara1 | Vidrio 2: $procCara2\n")
-        sb.append("${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · ${if (record.atencionVidrioForma) "¡ATENCIÓN C/FORMA!" else "Recto"} · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}\n")
+        val formaTexto = if (record.atencionVidrioForma) "¡ATENCIÓN C/FORMA!${if (!record.codigoForma.isNullOrBlank()) " Cod: ${record.codigoForma}" else ""}" else "Recto"
+        sb.append("${if (record.yaEsDvh) "Ya es DVH" else "Sin DVH"} · $formaTexto · Resp: ${record.responsable ?: ""} · Sector: ${record.sector ?: ""}\n")
         sb.append("Sector Destino: ${record.sectorDestino ?: "-"}\n")
         sb.append("Motivo: ${record.motivo?.ifEmpty { "-" } ?: "-"}")
 
@@ -560,7 +569,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         clearForm()
-        Toast.makeText(this, "Formulario listo para un nuevo registro", Toast.LENGTH_SHORT).show()
     }
 
     private fun onAgregarItem() {
@@ -630,6 +638,7 @@ class MainActivity : AppCompatActivity() {
         val alto = etAlto.text.toString().trim()
         val ancho = etAncho.text.toString().trim()
         val cliente = etCliente.text.toString().trim()
+        val codigoForma = etCodigoForma.text.toString().trim()
         if (responsable.isNullOrBlank()) {
             Toast.makeText(this, "Elegí un responsable", Toast.LENGTH_SHORT).show()
             return null
@@ -676,6 +685,7 @@ class MainActivity : AppCompatActivity() {
             templadoCara2 = templadoCara2,
             yaEsDvh = yaEsDvh,
             atencionVidrioForma = atencionForma,
+            codigoForma = codigoForma,
             origenCorte = origenCorte
         )
 
@@ -692,6 +702,7 @@ class MainActivity : AppCompatActivity() {
         etAlto.text.clear()
         etAncho.text.clear()
         etMotivo.text.clear()
+        etCodigoForma.text.clear()
 
         if (spResponsable.adapter != null && spResponsable.adapter.count > 0) {
             spResponsable.setSelection(0)
@@ -718,7 +729,10 @@ class MainActivity : AppCompatActivity() {
 
         rbFloat.isChecked = true
 
-
+        // Limpiar vista previa de items y resumen
+        containerItemsPreview.removeAllViews()
+        selectedItemId = null
+        btnEliminarItem.isEnabled = false
         tvResumen.text = getString(R.string.preview_hint)
     }
 
@@ -726,6 +740,7 @@ class MainActivity : AppCompatActivity() {
         etAlto.text.clear()
         etAncho.text.clear()
         etMotivo.text.clear()
+        etCodigoForma.text.clear()
 
         if (spSectorDestino.adapter != null && spSectorDestino.adapter.count > 0) {
             spSectorDestino.setSelection(0)
@@ -787,7 +802,7 @@ class MainActivity : AppCompatActivity() {
             canvas.drawText("Material: ${record.material ?: ""}", 40f, y, paint); y += 18f
             if (!record.alto.isNullOrBlank() || !record.ancho.isNullOrBlank()) {
                 canvas.drawText(
-                    "Medidas: ${record.alto.orEmpty()} x ${record.ancho.orEmpty()}",
+                    "Medidas: ${record.ancho.orEmpty()} x ${record.alto.orEmpty()}",
                     40f,
                     y,
                     paint
@@ -817,12 +832,19 @@ class MainActivity : AppCompatActivity() {
 
             // Otros
             canvas.drawText(
-                "Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}  " +
-                        "C/Forma: ${if (record.atencionVidrioForma) "SI" else "NO"}",
-                40f,
-                y,
-                paint
+                "Ya es DVH: ${if (record.yaEsDvh) "SI" else "NO"}",
+                40f, y, paint
             ); y += 18f
+            
+            if (record.atencionVidrioForma) {
+                val txt = if (!record.codigoForma.isNullOrBlank()) "¡ATENCIÓN C/FORMA! Cod: ${record.codigoForma}" else "¡ATENCIÓN C/FORMA!"
+                canvas.drawText(txt, 40f, y, Paint(paint).apply { 
+                    color = android.graphics.Color.RED
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    textSize = 14f
+                })
+                y += 24f
+            }
             canvas.drawText("Origen corte: ${record.origenCorte}", 40f, y, paint); y += 18f
 
             pdfDocument.finishPage(page)
@@ -895,7 +917,7 @@ class MainActivity : AppCompatActivity() {
                 y += 14f
 
                 if (!item.alto.isNullOrBlank() || !item.ancho.isNullOrBlank()) {
-                    canvas.drawText("   Medidas: ${item.alto.orEmpty()} x ${item.ancho.orEmpty()}", 50f, y, paint)
+                    canvas.drawText("   Medidas: ${item.ancho.orEmpty()} x ${item.alto.orEmpty()}", 50f, y, paint)
                     y += 14f
                 }
 
@@ -931,6 +953,12 @@ class MainActivity : AppCompatActivity() {
 
                 canvas.drawText("   ${item.origenCorte}", 50f, y, paint)
                 y += 14f
+
+                if (item.atencionVidrioForma) {
+                    val txt = if (!item.codigoForma.isNullOrBlank()) "   ¡ATENCIÓN C/FORMA! Cod: ${item.codigoForma}" else "   ¡ATENCIÓN C/FORMA!"
+                    canvas.drawText(txt, 50f, y, Paint(paint).apply { color = android.graphics.Color.RED; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) })
+                    y += 14f
+                }
 
                 if (!item.motivo.isNullOrBlank()) {
                     canvas.drawText("   Motivo: ${item.motivo}", 50f, y, paint)
@@ -1016,7 +1044,7 @@ class MainActivity : AppCompatActivity() {
             existingItems.forEachIndexed { index, item ->
                 val procV1 = if (item.pulidoCara1 || item.templadoCara1) "V1:Procesado" else "V1:Std"
                 val procV2 = if (item.pulidoCara2 || item.templadoCara2) "V2:Procesado" else "V2:Std"
-                val dim = if (!item.alto.isNullOrBlank()) "${item.alto}x${item.ancho}" else ""
+                val dim = if (!item.ancho.isNullOrBlank()) "${item.ancho}x${item.alto}" else ""
                 
                 sb.append("#${index + 1} · ${item.tipologia ?: "-"} · ${item.material} $dim\n")
             }
@@ -1036,8 +1064,8 @@ class MainActivity : AppCompatActivity() {
         ).joinToString(" · ").ifEmpty { "Sin procesos" }
 
         val medidas = listOfNotNull(
-            record.alto?.takeIf { it.isNotBlank() },
-            record.ancho?.takeIf { it.isNotBlank() }
+            record.ancho?.takeIf { it.isNotBlank() },
+            record.alto?.takeIf { it.isNotBlank() }
         ).joinToString(" x ")
         
         sb.append("${record.tipologia ?: ""} · ${record.material ?: ""}${if (medidas.isNotEmpty()) " · $medidas" else ""} (${record.origenCorte})\n")

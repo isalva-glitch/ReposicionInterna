@@ -33,6 +33,7 @@ class ReposicionDbHelper(context: Context) :
                 $COL_DVH INTEGER,
                 $COL_ATENCION_FORMA INTEGER,
                 $COL_ORIGEN TEXT,
+                $COL_CODIGO_FORMA TEXT,
                 $COL_PDF_PATH TEXT,
                 $COL_TIMESTAMP INTEGER
             );
@@ -58,6 +59,14 @@ class ReposicionDbHelper(context: Context) :
             // MIGRATION: Agregamos columna 'sector_destino'
             try {
                 db.execSQL("ALTER TABLE $TABLE_REPOSICION ADD COLUMN $COL_SECTOR_DESTINO TEXT")
+            } catch (e: Exception) {
+                // Ignore if exists
+            }
+        }
+        if (oldVersion < 9) {
+            // MIGRATION: Agregamos columna 'codigo_forma'
+            try {
+                db.execSQL("ALTER TABLE $TABLE_REPOSICION ADD COLUMN $COL_CODIGO_FORMA TEXT")
             } catch (e: Exception) {
                 // Ignore if exists
             }
@@ -88,6 +97,7 @@ class ReposicionDbHelper(context: Context) :
 
             put(COL_DVH, if (record.yaEsDvh) 1 else 0)
             put(COL_ATENCION_FORMA, if (record.atencionVidrioForma) 1 else 0)
+            put(COL_CODIGO_FORMA, record.codigoForma)
             put(COL_ORIGEN, record.origenCorte)
             put(COL_PDF_PATH, record.pdfPath)
             put(COL_TIMESTAMP, record.timestamp)
@@ -187,6 +197,9 @@ class ReposicionDbHelper(context: Context) :
         val atencionFormaIdx = cursor.getColumnIndex(COL_ATENCION_FORMA)
         val atencionForma = if (atencionFormaIdx >= 0) cursor.getInt(atencionFormaIdx) == 1 else false
 
+        val codigoFormaIdx = cursor.getColumnIndex(COL_CODIGO_FORMA)
+        val codigoForma = if (codigoFormaIdx >= 0) cursor.getString(codigoFormaIdx) else null
+
         val origen = cursor.getString(cursor.getColumnIndexOrThrow(COL_ORIGEN))
         val pdfPath = cursor.getString(cursor.getColumnIndexOrThrow(COL_PDF_PATH))
         val timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIMESTAMP))
@@ -212,6 +225,7 @@ class ReposicionDbHelper(context: Context) :
             templadoCara2 = templadoC2,
             yaEsDvh = dvh,
             atencionVidrioForma = atencionForma,
+            codigoForma = codigoForma,
             origenCorte = origen ?: "",
             pdfPath = pdfPath,
             timestamp = timestamp
@@ -222,7 +236,7 @@ class ReposicionDbHelper(context: Context) :
     companion object {
         private const val DATABASE_NAME = "reposicion.db"
         // SUBIR VERSION PARA MIGRACION
-        private const val DATABASE_VERSION = 8
+        private const val DATABASE_VERSION = 9
         const val TABLE_REPOSICION = "reposicion"
         const val COL_ID = "id"
         const val COL_FECHA = "fecha"
@@ -246,6 +260,7 @@ class ReposicionDbHelper(context: Context) :
 
         const val COL_DVH = "dvh"
         const val COL_ATENCION_FORMA = "atencion_c_forma"
+        const val COL_CODIGO_FORMA = "codigo_forma"
         const val COL_ORIGEN = "origen_corte"
         const val COL_PDF_PATH = "pdf_path"
         const val COL_TIMESTAMP = "ts"
