@@ -9,7 +9,8 @@ import android.widget.TextView
 
 class RecordsAdapter(
     context: Context,
-    records: List<ReposicionRecord>
+    records: List<ReposicionRecord>,
+    private val onOrderHeaderClick: (numeroPedido: String) -> Unit = {}
 ) : ArrayAdapter<ReposicionRecord>(context, 0, records) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -41,6 +42,13 @@ class RecordsAdapter(
             tvResponsable.visibility = View.VISIBLE
             tvPedido.text = "${record?.fecha ?: ""} · Pedido ${record?.numeroPedido ?: ""}"
             tvResponsable.text = "Resp: ${record?.responsable ?: "-"} · Sector: ${record?.sector ?: "-"}"
+            // Tap on header loads the full order into MainActivity
+            val numeroPedido = record?.numeroPedido
+            if (!numeroPedido.isNullOrBlank()) {
+                tvPedido.setOnClickListener { onOrderHeaderClick(numeroPedido) }
+                // Visual hint: underline the header text
+                tvPedido.paintFlags = tvPedido.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+            }
         }
 
         tvMaterial.text = listOfNotNull(

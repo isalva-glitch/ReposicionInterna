@@ -144,6 +144,19 @@ class MainActivity : AppCompatActivity() {
         setupReactivePreview()
 
         requestPinnedShortcutIfNeeded()
+
+        // Check if launched from RecordsActivity to load a specific order
+        intent.getStringExtra(EXTRA_LOAD_PEDIDO)?.let { numeroPedido ->
+            loadOrderIntoForm(numeroPedido)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        intent.getStringExtra(EXTRA_LOAD_PEDIDO)?.let { numeroPedido ->
+            loadOrderIntoForm(numeroPedido)
+        }
     }
 
     // ---------- INICIALIZACIÓN FECHA ----------
@@ -869,8 +882,8 @@ class MainActivity : AppCompatActivity() {
         return try {
             val pdfDocument = PdfDocument()
             val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-            val canvas = page.canvas
+            var page = pdfDocument.startPage(pageInfo)
+            var canvas = page.canvas
 
             val paint = Paint().apply {
                 color = android.graphics.Color.BLACK
@@ -907,9 +920,11 @@ class MainActivity : AppCompatActivity() {
 
             items.forEachIndexed { index, item ->
                 if (y > 750f) {
+                    // Finish current page and start a new one
                     pdfDocument.finishPage(page)
-                    val newPage = pdfDocument.startPage(pageInfo)
-                    canvas.drawText("Fontela Cristales - Continuación", 40f, 40f, titlePaint)
+                    page = pdfDocument.startPage(pageInfo)
+                    canvas = page.canvas
+                    canvas.drawText("Fontela Cristales - Continuación", 40f, 30f, titlePaint)
                     y = 70f
                 }
 
@@ -1003,7 +1018,13 @@ class MainActivity : AppCompatActivity() {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        startActivity(Intent.createChooser(emailIntent, "Enviar email..."))
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Enviar email..."))
+        } catch (e: android.content.ActivityNotFoundException) {
+            Toast.makeText(this, "No hay app de email instalada", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error al abrir el email: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
 
@@ -1139,9 +1160,46 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Carga un pedido guardado en el formulario principal a partir del número de pedido.
+     * Toma los campos de encabezado del primer item (fecha, nro, cliente, responsable, sector)
+     * y actualiza el preview con todos los items del pedido.
+     */
+    private fun loadOrderIntoForm(numeroPedido: String) {
+        val items = dbHelper.getItemsByOrderNumber(numeroPedido)
+        if (items.isEmpty()) {
+            Toast.makeText(this, "No se encontraron items para el pedido #$numeroPedido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val first = items.first()
+
+        // Populate header fields from the first item
+        etFecha.setText(first.fecha)
+        etNumeroPedido.setText(first.numeroPedido)
+        etCliente.setText(first.cliente ?: "")
+
+        // Set spinners by matching value
+        val respIdx = responsableList.indexOfFirst { it == first.responsable }
+        if (respIdx >= 0) spResponsable.setSelection(respIdx)
+
+        val sectorIdx = sectorList.indexOfFirst { it == first.sector }
+        if (sectorIdx >= 0) spSector.setSelection(sectorIdx)
+
+        // Update preview to show all saved items
+        tryUpdatePreview()
+
+        Toast.makeText(
+            this,
+            "Pedido #$numeroPedido cargado (${items.size} item${if (items.size != 1) "s" else ""}). Podés generar y enviar el PDF.",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
     companion object {
         private const val PREFS_NAME = "reposicion_prefs"
         private const val KEY_PINNED_SHORTCUT_REQUESTED = "pinned_shortcut_requested"
+        const val EXTRA_LOAD_PEDIDO = "extra_load_pedido"
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.reposicioninterna
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ListView
@@ -37,7 +38,16 @@ class RecordsActivity : AppCompatActivity() {
                 entry.value.sortedBy { it.timestamp } 
             }
 
-        val adapter = RecordsAdapter(this, sortedRecords)
+        val adapter = RecordsAdapter(this, sortedRecords) { numeroPedido ->
+            // Load the selected order into MainActivity and close this screen
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra(MainActivity.EXTRA_LOAD_PEDIDO, numeroPedido)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            finish()
+        }
         listView.adapter = adapter
     }
 }
+
